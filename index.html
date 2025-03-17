@@ -27,36 +27,87 @@
             width: calc(100% - 32px);
             height: calc(100vh - 32px);
             margin: 16px;
-            background: #EDECEB;
             gap: 10px;
         }
 
         .left-panel {
             flex: 75%;
-            padding: 0; /* 移除内边距 */
+            padding: 0;
             background-color: #ffffff;
             position: relative;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
-            overflow-y: auto;
+            overflow: hidden;
             height: 100%;
             display: flex;
-            flex-direction: column; /* 使用flex布局使顶栏固定 */
+            flex-direction: column;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            margin: 16px;
         }
 
         .right-panel {
             flex: 25%;
             background-color: #F7F6F5;
-            border: 1px solid rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            position: relative; /* 改回相对定位 */
-            box-shadow: -1px 0 3px rgba(0, 0, 0, 0.05);
-            padding: 16px 0 16px 0; /* 调整内边距 */
+            position: relative;
+            box-shadow: 0px 0px 2px 2px #FFF inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.06), 0px 0px 10px 0px #E3E0DB;
+            padding: 0;
             border-radius: 12px;
-            height: 100%; /* 使用100%高度 */
+            height: 100%;
             overflow: hidden;
-            z-index: 100; /* 确保在其他元素上方 */
+            z-index: 100;
+        }
+
+        .right-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 12px 16px;
+            gap: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .right-panel-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .credit-icon {
+            width: 72px;
+            height: 36px;
+            object-fit: contain;
+        }
+
+        .upgrade-button {
+            display: flex;
+            height: 36px;
+            padding: 0px 10px;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(152, 117, 255, 0.10);
+            color: #9875FF;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .upgrade-button:hover {
+            background: rgba(152, 117, 255, 0.15);
+        }
+
+        .help-icon {
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
         }
 
         .element {
@@ -695,7 +746,7 @@
 
         /* 顶部栏样式 */
         .top-bar {
-            position: sticky; /* 改为sticky定位 */
+            position: sticky;
             top: 0;
             left: 0;
             right: 0;
@@ -707,7 +758,23 @@
             justify-content: space-between;
             padding: 0 16px;
             z-index: 999999;
-            flex-shrink: 0; /* 防止顶栏压缩 */
+            flex-shrink: 0;
+        }
+
+        /* 中间区域样式 */
+        .center-section {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .center-section img {
+            width: 195px;
+            height: 24px;
+            object-fit: contain;
         }
 
         /* 左侧区域样式 */
@@ -853,6 +920,11 @@
                     </button>
                 </div>
 
+                <!-- 中间区域 - URL Status -->
+                <div class="center-section">
+                    <img src="resource/urlStatue.png" alt="URL Status" style="width: 195px; height: 24px;">
+                </div>
+
                 <!-- 右侧区域 -->
                 <div class="right-section">
                     <!-- 工具按钮组 -->
@@ -960,8 +1032,16 @@
             </div>
         </div>
         <div class="right-panel">
+            <!-- 右侧面板顶部 -->
+            <div class="right-panel-header">
+                <img src="resource/credit.png" alt="Credits" class="credit-icon" style="width: 72px; height: 36px;">
+                <button class="upgrade-button">
+                    Upgrade
+                </button>
+                <img src="resource/help.svg" alt="Help" class="help-icon">
+            </div>
             
-            <!-- 添加对话记录区域 -->
+            <!-- 对话记录区域 -->
             <div class="chat-history" id="chatHistory">
                 <!-- 这里将显示对话记录 -->
             </div>
