@@ -33,13 +33,15 @@
 
         .left-panel {
             flex: 75%;
-            padding: 24px;
+            padding: 0; /* 移除内边距 */
             background-color: #ffffff;
             position: relative;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
-            overflow-y: auto; /* 添加滚动条 */
-            height: 100%; /* 使用100%高度 */
+            overflow-y: auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column; /* 使用flex布局使顶栏固定 */
         }
 
         .right-panel {
@@ -690,93 +692,271 @@
             color: #666;
             margin-bottom: 24px;
         }
+
+        /* 顶部栏样式 */
+        .top-bar {
+            position: sticky; /* 改为sticky定位 */
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #ffffff;
+            box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 999999;
+            flex-shrink: 0; /* 防止顶栏压缩 */
+        }
+
+        /* 左侧区域样式 */
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* 设置间距为 12px */
+        }
+
+        /* 工作区图标样式 */
+        .workspace-icon {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* 下拉菜单按钮样式 */
+        .dropdown-menu-btn {
+            display: flex;
+            height: 36px;
+            padding: 0px 10px 0px 12px;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+        }
+
+        .dropdown-menu-btn span {
+            font-size: 14px;
+            color: #000;
+        }
+
+        .dropdown-menu-btn img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dropdown-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        /* 右侧区域样式 */
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-button {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .tool-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* 修改 preview-btn 样式 */
+        .preview-btn {
+            display: flex;
+            width: 88px;
+            height: 36px;
+            padding: 6px 16px;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.04);
+            font-size: 14px;
+            color: #000;
+            cursor: pointer;
+        }
+
+        .preview-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        /* 修改 publish-btn 样式 */
+        .publish-btn {
+            display: flex;
+            width: 88px;
+            height: 36px;
+            padding: 0px 10px 2px 10px;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            border-radius: 10px;
+            background: #000;
+            box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.20),
+                        0px 0px 0px 1px #000,
+                        0px 20px 20px 0px rgba(0, 0, 0, 0.04) inset,
+                        0px -2px 1px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 4px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px -1px 1px 0px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset;
+            font-size: 14px;
+            color: #FFF;
+            cursor: pointer;
+        }
+
+        .publish-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        /* 工具按钮组样式 */
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 16px;
+        }
+
+        .tool-button img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .credit-icon {
+            width: 32px;
+            height: 32px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="left-panel" id="leftPanel">
-            <div class="hero-section">
-                <h1 class="hero-title">探索无限可能</h1>
-                <p class="hero-description">发现创新科技，连接智慧未来。我们致力于为您提供最前沿的技术资讯和解决方案。</p>
-            </div>
+            <!-- 顶部栏 -->
+            <div class="top-bar">
+                <!-- 左侧区域 -->
+                <div class="left-section">
+                    <img src="resource/workspace.svg" alt="Workspace" class="workspace-icon">
+                    <button class="dropdown-menu-btn">
+                        <span>Home</span>
+                        <img src="resource/dropdown.svg" alt="dropdown">
+                    </button>
+                </div>
 
-            <div class="card-grid">
-                <div class="feature-card element" data-element="1">
-                    <div class="feature-icon">🚀</div>
-                    <h3 class="feature-title">快速部署</h3>
-                    <p class="feature-description">只需几分钟即可完成应用部署，让您的想法立即变为现实。</p>
-                </div>
-                <div class="feature-card element" data-element="2">
-                    <div class="feature-icon">🛡️</div>
-                    <h3 class="feature-title">安全可靠</h3>
-                    <p class="feature-description">企业级安全保障，为您的数据提供全方位防护。</p>
-                </div>
-                <div class="feature-card element" data-element="3">
-                    <div class="feature-icon">📊</div>
-                    <h3 class="feature-title">数据分析</h3>
-                    <p class="feature-description">强大的分析工具，助您洞察业务趋势。</p>
-                </div>
-            </div>
-
-            <div class="content-section">
-                <h2 class="section-title">最新动态</h2>
-                <article class="article element" data-element="4">
-                    <h3 class="article-title">人工智能革新产业未来</h3>
-                    <div class="article-meta">
-                        <span>发布于 2024-03-21</span>
-                        <span>阅读时间 5 分钟</span>
+                <!-- 右侧区域 -->
+                <div class="right-section">
+                    <!-- 工具按钮组 -->
+                    <div class="tool-group">
+                        <button class="tool-button" title="Style">
+                            <img src="resource/style.svg" alt="Style">
+                        </button>
+                        <button class="tool-button" title="Setting">
+                            <img src="resource/setting.svg" alt="Setting">
+                        </button>
+                        <button class="tool-button" title="Device">
+                            <img src="resource/device.svg" alt="Device">
+                        </button>
                     </div>
-                    <img src="https://picsum.photos/800/400" alt="AI Technology" class="article-image">
-                    <p class="article-content">人工智能技术正在重塑各个行业，从医疗保健到金融服务，AI 的应用范围不断扩大。本文将深入探讨 AI 技术如何改变我们的工作方式和生活方式。</p>
-                    <div class="tags">
-                        <span class="tag">人工智能</span>
-                        <span class="tag">技术创新</span>
-                        <span class="tag">数字转型</span>
-                    </div>
-                </article>
-
-                <article class="article element" data-element="5">
-                    <h3 class="article-title">云计算技术发展趋势</h3>
-                    <div class="article-meta">
-                        <span>发布于 2024-03-20</span>
-                        <span>阅读时间 4 分钟</span>
-                    </div>
-                    <p class="article-content">随着数字化转型的深入，云计算技术在企业中的应用越来越广泛。本文将为您解析云计算的最新发展趋势和最佳实践。</p>
-                    <div class="tags">
-                        <span class="tag">云计算</span>
-                        <span class="tag">企业服务</span>
-                        <span class="tag">技术趋势</span>
-                    </div>
-                </article>
-            </div>
-
-            <div class="newsletter-section">
-                <h3 class="newsletter-title">订阅我们的新闻简报</h3>
-                <p class="newsletter-description">及时了解最新技术动态和行业见解，每周精选内容直达您的邮箱。</p>
-                <a href="#" class="cta-button">立即订阅</a>
-            </div>
-
-            <div class="toolbar" id="toolbar">
-                <div class="toolbar-title" id="toolbarDragHandle">Kimmy 猜你想</div>
-                <button><span class="icon">✍️</span> 修改文本</button>
-                <button><span class="icon">🔗</span> 修改链接</button>
-                <div class="toolbar-divider">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="148" height="2" viewBox="0 0 148 2" fill="none">
-                      <path d="M0 1H148" stroke="black" stroke-opacity="0.3" stroke-linejoin="round" stroke-dasharray="1 3"/>
-                    </svg>
-                </div>
-                <button class="delete-button"><span class="icon">🗑️</span> 删除文本</button>
-                <!-- 添加箭头SVG -->
-                <div class="toolbar-arrow">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="32" viewBox="0 0 13 32" fill="none">
-                        <path d="M11.6226 13.7987C12.905 14.9861 12.905 17.0139 11.6226 18.2013L3.09424 26.0979C1.416 27.6518 0.323455 29.7358 1.46226e-06 32L2.86102e-06 -6.11959e-07C0.323455 2.26418 1.416 4.34815 3.09424 5.90207L11.6226 13.7987Z" fill="white"/>
-                    </svg>
+                    <button class="preview-btn">Preview</button>
+                    <button class="publish-btn">Publish</button>
                 </div>
             </div>
-            
-            <!-- 将IP人物单独放置 -->
-            <div class="ip-character-container" id="ipCharacterContainer">
-                <img src="IP人物.png" alt="IP角色" id="ipCharacter">
+
+            <!-- 内容区域容器 -->
+            <div class="panel-content">
+                <div class="hero-section">
+                    <h1 class="hero-title">探索无限可能</h1>
+                    <p class="hero-description">发现创新科技，连接智慧未来。我们致力于为您提供最前沿的技术资讯和解决方案。</p>
+                </div>
+
+                <div class="card-grid">
+                    <div class="feature-card element" data-element="1">
+                        <div class="feature-icon">🚀</div>
+                        <h3 class="feature-title">快速部署</h3>
+                        <p class="feature-description">只需几分钟即可完成应用部署，让您的想法立即变为现实。</p>
+                    </div>
+                    <div class="feature-card element" data-element="2">
+                        <div class="feature-icon">🛡️</div>
+                        <h3 class="feature-title">安全可靠</h3>
+                        <p class="feature-description">企业级安全保障，为您的数据提供全方位防护。</p>
+                    </div>
+                    <div class="feature-card element" data-element="3">
+                        <div class="feature-icon">📊</div>
+                        <h3 class="feature-title">数据分析</h3>
+                        <p class="feature-description">强大的分析工具，助您洞察业务趋势。</p>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <h2 class="section-title">最新动态</h2>
+                    <article class="article element" data-element="4">
+                        <h3 class="article-title">人工智能革新产业未来</h3>
+                        <div class="article-meta">
+                            <span>发布于 2024-03-21</span>
+                            <span>阅读时间 5 分钟</span>
+                        </div>
+                        <img src="https://picsum.photos/800/400" alt="AI Technology" class="article-image">
+                        <p class="article-content">人工智能技术正在重塑各个行业，从医疗保健到金融服务，AI 的应用范围不断扩大。本文将深入探讨 AI 技术如何改变我们的工作方式和生活方式。</p>
+                        <div class="tags">
+                            <span class="tag">人工智能</span>
+                            <span class="tag">技术创新</span>
+                            <span class="tag">数字转型</span>
+                        </div>
+                    </article>
+
+                    <article class="article element" data-element="5">
+                        <h3 class="article-title">云计算技术发展趋势</h3>
+                        <div class="article-meta">
+                            <span>发布于 2024-03-20</span>
+                            <span>阅读时间 4 分钟</span>
+                        </div>
+                        <p class="article-content">随着数字化转型的深入，云计算技术在企业中的应用越来越广泛。本文将为您解析云计算的最新发展趋势和最佳实践。</p>
+                        <div class="tags">
+                            <span class="tag">云计算</span>
+                            <span class="tag">企业服务</span>
+                            <span class="tag">技术趋势</span>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="newsletter-section">
+                    <h3 class="newsletter-title">订阅我们的新闻简报</h3>
+                    <p class="newsletter-description">及时了解最新技术动态和行业见解，每周精选内容直达您的邮箱。</p>
+                    <a href="#" class="cta-button">立即订阅</a>
+                </div>
+
+                <div class="toolbar" id="toolbar">
+                    <div class="toolbar-title" id="toolbarDragHandle">Kimmy 猜你想</div>
+                    <button><span class="icon">✍️</span> 修改文本</button>
+                    <button><span class="icon">🔗</span> 修改链接</button>
+                    <div class="toolbar-divider">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="148" height="2" viewBox="0 0 148 2" fill="none">
+                          <path d="M0 1H148" stroke="black" stroke-opacity="0.3" stroke-linejoin="round" stroke-dasharray="1 3"/>
+                        </svg>
+                    </div>
+                    <button class="delete-button"><span class="icon">🗑️</span> 删除文本</button>
+                    <!-- 添加箭头SVG -->
+                    <div class="toolbar-arrow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="32" viewBox="0 0 13 32" fill="none">
+                            <path d="M11.6226 13.7987C12.905 14.9861 12.905 17.0139 11.6226 18.2013L3.09424 26.0979C1.416 27.6518 0.323455 29.7358 1.46226e-06 32L2.86102e-06 -6.11959e-07C0.323455 2.26418 1.416 4.34815 3.09424 5.90207L11.6226 13.7987Z" fill="white"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- 将IP人物单独放置 -->
+                <div class="ip-character-container" id="ipCharacterContainer">
+                    <img src="resource/IP人物.png" alt="IP角色" id="ipCharacter">
+                </div>
             </div>
         </div>
         <div class="right-panel">
@@ -862,6 +1042,22 @@
                     child.setAttribute('data-button-child', 'true');
                 });
             });
+            
+            // 初始化DOM加载完成后，设置全局监听器确保标签显示正确
+            document.addEventListener('DOMContentLoaded', () => {
+                // 监听文档点击，确保标签显示状态与选中元素一致
+                document.addEventListener('click', () => {
+                    // 简单延迟确保其他点击处理完成
+                    setTimeout(() => {
+                        // 如果有选中元素但标签未显示且输入框有焦点，则显示标签
+                        if (selectedElement && !inputTagContainer.classList.contains('visible') && 
+                            document.activeElement === mainInput) {
+                            generateInputTag();
+                            inputTagContainer.classList.add('visible');
+                        }
+                    }, 50);
+                });
+            });
         }
         
         // 阻止原生点击事件
@@ -907,6 +1103,17 @@
                 
                 // 选中新元素
                 selectElement(selectableElement);
+                
+                // 如果输入框已经聚焦，确保标签显示
+                if (document.activeElement === mainInput) {
+                    // 确保正确显示标签
+                    setTimeout(() => {
+                        if (selectedElement && !inputTagContainer.classList.contains('visible')) {
+                            generateInputTag();
+                            inputTagContainer.classList.add('visible');
+                        }
+                    }, 50);
+                }
             } else if (clickedElement === leftPanel || clickedElement.closest('.hero-section') === leftPanel.querySelector('.hero-section')) {
                 // 点击面板背景或顶部区域，取消选中
                 deselectElement(false, true); // 强制取消选中
@@ -1120,6 +1327,9 @@
             
             // 显示IP人物图像
             showIpCharacter();
+            
+            // 显示工具栏不再影响标签的显示状态
+            // 标签的显示由selectElement和输入框焦点状态控制
         }
         
         // 显示IP人物图像
@@ -1161,6 +1371,9 @@
             if (ipCharacterContainer) {
                 ipCharacterContainer.style.display = 'none';
             }
+            
+            // 工具栏隐藏不再影响标签显示状态
+            // 只有在明确取消选择元素时才会隐藏标签
         }
 
         // 重置工具栏位置函数
@@ -1227,7 +1440,7 @@
             
             // 处理左侧面板区域的点击
             if (!e.target.closest('.toolbar') && !e.target.closest('.element') && !isSelectableElement(e.target)) {
-                // 如果点击的不是工具栏、元素或可选择元素，强制取消选中，不自动隐藏工具栏
+                // 如果点击的不是工具栏、元素或可选择元素，强制取消选中
                 deselectElement(false, true);
             }
         });
@@ -1237,7 +1450,7 @@
             // 如果正在拖动工具栏，不执行自动隐藏
             if (isDragging) return;
             
-            // 如果菜单是二次出现的，且当前可见，设置计时器在1000ms后自动隐藏
+            // 只隐藏工具栏，不影响选中状态和标签
             if (isSecondAppearance && isToolbarVisible) {
                 // 清除之前的计时器（如果有）
                 if (leftPanelLeaveTimer) {
@@ -1246,8 +1459,25 @@
                 
                 // 设置新的计时器
                 leftPanelLeaveTimer = setTimeout(() => {
-                    // 500ms后自动隐藏菜单
-                    hideToolbar();
+                    // 仅隐藏工具栏，不取消选中状态
+                    if (isToolbarVisible) {
+                        toolbar.style.display = 'none';
+                        isToolbarVisible = false;
+                        isSecondAppearance = false;
+                        
+                        // 记录工具栏隐藏时间
+                        lastToolbarHideTime = Date.now();
+                        // 重置移动跟踪状态
+                        mouseMovementTracking = true;
+                        startTrackPosition = lastMousePosition;
+                        
+                        // 隐藏IP人物
+                        const ipCharacterContainer = document.getElementById('ipCharacterContainer');
+                        if (ipCharacterContainer) {
+                            ipCharacterContainer.style.display = 'none';
+                        }
+                    }
+                    
                     leftPanelLeaveTimer = null;
                 }, 500);
             }
@@ -1478,7 +1708,14 @@
             closeButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                
+                // 点击关闭按钮时，仅取消选中元素，但保持输入框聚焦
                 deselectElement(true, true); // 取消选中并隐藏工具栏
+                
+                // 让输入框保持焦点
+                setTimeout(() => {
+                    mainInput.focus();
+                }, 10);
             });
             
             // 添加到标签容器
@@ -1487,6 +1724,8 @@
             
             // 显示标签容器
             inputTagContainer.classList.add('visible');
+            
+            return true; // 返回成功标志
         }
         
         // 初始化输入框焦点处理
@@ -1512,8 +1751,9 @@
                     // 显示建议面板
                     suggestionPanel.classList.add('visible');
                     // 生成标签（如果还没有）
-                    if (inputTagContainer.children.length === 0) {
+                    if (!inputTagContainer.classList.contains('visible')) {
                         generateInputTag();
+                        inputTagContainer.classList.add('visible');
                     }
                 }
             });
