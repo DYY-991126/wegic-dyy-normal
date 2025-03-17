@@ -1167,6 +1167,125 @@
             width: 32px;
             height: 32px;
         }
+        
+        /* 添加链接面板样式 */
+        .add-link-panel {
+            position: fixed;
+            width: 308px;
+            background-color: #fff !important;
+            border-radius: 12px;
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.32), 0px 0px 8px 0px rgba(0, 0, 0, 0.08);
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            padding: 16px;
+            gap: 12px;
+        }
+        
+        .add-link-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .add-link-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333333;
+        }
+        
+        .add-link-close {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .add-link-close:hover {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+        }
+        
+        .add-link-input {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333333;
+            outline: none;
+        }
+        
+        .add-link-input:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+        
+        .add-link-button {
+            width: 100%;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            border-radius: 8px;
+            background: #000;
+            box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.20),
+                        0px 0px 0px 1px #000,
+                        0px 20px 20px 0px rgba(0, 0, 0, 0.04) inset,
+                        0px -2px 1px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 4px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px -1px 1px 0px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset;
+            font-size: 14px;
+            color: #FFF;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        
+        .add-link-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        
+        /* 确保添加链接面板不会显示hover和选中效果 */
+        .add-link-panel,
+        .add-link-panel *,
+        .add-link-panel [data-selectable="true"]:hover:not(.selected),
+        .add-link-panel [data-selectable="true"].selected {
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: inherit !important;
+            border-color: inherit !important;
+        }
+        
+        /* 恢复添加链接面板中需要的原始样式 */
+        .add-link-panel .add-link-button {
+            background: #000 !important;
+            box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.20),
+                        0px 0px 0px 1px #000,
+                        0px 20px 20px 0px rgba(0, 0, 0, 0.04) inset,
+                        0px -2px 1px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 4px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px -1px 1px 0px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset !important;
+        }
+        
+        .add-link-panel .add-link-button:hover {
+            background: rgba(0, 0, 0, 0.9) !important;
+        }
+        
+        .add-link-panel .add-link-input {
+            background: #fff !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .add-link-panel .add-link-input:focus {
+            border-color: #0071e3 !important;
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2) !important;
+        }
     </style>
 </head>
 <body>
@@ -1318,6 +1437,21 @@
                         <div class="upload-text">PNG, JPG (Max 5MB)</div>
                     </div>
                     <button class="local-upload-btn" id="localUploadBtn">Local upload</button>
+                </div>
+                
+                <!-- 添加链接面板 -->
+                <div class="add-link-panel" id="addLinkPanel">
+                    <div class="add-link-header">
+                        <div class="add-link-title">添加链接</div>
+                        <div class="add-link-close" id="addLinkClose">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.5 3.5L3.5 12.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 3.5L12.5 12.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <input type="text" class="add-link-input" id="linkInput" placeholder="输入链接地址" />
+                    <button class="add-link-button" id="confirmLinkBtn">确认</button>
                 </div>
             </div>
         </div>
@@ -1485,6 +1619,9 @@
             
             // 替换图片面板及其子元素不可选中
             if (element.closest('.replace-image-panel')) return false;
+            
+            // 添加链接面板及其子元素不可选中
+            if (element.closest('.add-link-panel')) return false;
             
             // 如果是按钮内的子元素，返回按钮元素
             if (element.getAttribute('data-button-child') === 'true') {
@@ -2863,7 +3000,7 @@
                             hideToolbar();
                         }
                     } else if (btn.text === '添加链接') {
-                        // 添加链接功能 (可以在这里实现)
+                        showAddLinkPanel();
                     } else if (btn.text === '替换图标') {
                         // 替换图标功能 (可以在这里实现)
                     } else if (btn.text === '生成&优化') {
@@ -2903,6 +3040,7 @@
             initSuggestionItems();
             initGlobalKeyboardListener(); // 添加全局键盘监听初始化
             initUploadFiles(); // 初始化上传文件功能
+            initAddLinkPanel(); // 初始化添加链接面板
             
             // 初始化工具栏标题和分隔线引用
             window.toolbarTitle = document.getElementById('toolbarDragHandle');
@@ -3055,6 +3193,142 @@
             });
         }
         
+        // 初始化添加链接面板
+        function initAddLinkPanel() {
+            const addLinkPanel = document.getElementById('addLinkPanel');
+            const addLinkClose = document.getElementById('addLinkClose');
+            const linkInput = document.getElementById('linkInput');
+            const confirmLinkBtn = document.getElementById('confirmLinkBtn');
+            
+            // 关闭按钮点击事件
+            addLinkClose.addEventListener('click', hideAddLinkPanel);
+            
+            // 确认按钮点击事件
+            confirmLinkBtn.addEventListener('click', function() {
+                applyLinkToElement();
+            });
+            
+            // 添加回车键确认功能
+            linkInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    applyLinkToElement();
+                }
+            });
+        }
+        
+        // 将链接应用到元素
+        function applyLinkToElement() {
+            const linkInput = document.getElementById('linkInput');
+            const url = linkInput.value.trim();
+            
+            if (url && selectedElement) {
+                // 检查URL格式
+                let formattedUrl = url;
+                if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('mailto:') && !url.startsWith('tel:')) {
+                    formattedUrl = 'https://' + url;
+                }
+                
+                // 根据元素类型应用链接
+                if (selectedElement.tagName === 'A') {
+                    // 如果已经是链接元素，直接更新href
+                    selectedElement.href = formattedUrl;
+                } else if (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image')) {
+                    // 如果是图片，包装一个a标签
+                    const wrapper = document.createElement('a');
+                    wrapper.href = formattedUrl;
+                    wrapper.target = '_blank'; // 在新标签页打开
+                    
+                    const parent = selectedElement.parentNode;
+                    parent.insertBefore(wrapper, selectedElement);
+                    wrapper.appendChild(selectedElement);
+                } else {
+                    // 其他元素，试图找到父级A标签或包装一个新的A标签
+                    const parentLink = selectedElement.closest('a');
+                    if (parentLink) {
+                        // 如果已在链接内，更新链接
+                        parentLink.href = formattedUrl;
+                    } else {
+                        // 否则包装一个新的链接
+                        const wrapper = document.createElement('a');
+                        wrapper.href = formattedUrl;
+                        wrapper.target = '_blank'; // 在新标签页打开
+                        wrapper.style.textDecoration = 'none'; // 默认不显示下划线
+                        wrapper.style.color = 'inherit'; // 保持原来的文字颜色
+                        
+                        const parent = selectedElement.parentNode;
+                        parent.insertBefore(wrapper, selectedElement);
+                        wrapper.appendChild(selectedElement);
+                    }
+                }
+                
+                // 清空输入框并隐藏面板
+                linkInput.value = '';
+                hideAddLinkPanel();
+                
+                // 应用链接后显示工具栏
+                if (selectedElement) {
+                    const rect = selectedElement.getBoundingClientRect();
+                    showToolbar(rect, false);
+                }
+            } else if (!url) {
+                // URL为空，显示错误提示
+                linkInput.style.borderColor = '#ff3b30';
+                linkInput.placeholder = '请输入有效的链接地址';
+                
+                // 2秒后恢复样式
+                setTimeout(() => {
+                    linkInput.style.borderColor = '';
+                    linkInput.placeholder = '输入链接地址';
+                }, 2000);
+            }
+        }
+        
+        // 显示添加链接面板
+        function showAddLinkPanel() {
+            const addLinkPanel = document.getElementById('addLinkPanel');
+            if (!addLinkPanel) return;
+            
+            // 设置面板位置 - 居中显示
+            const panelWidth = 308;
+            const panelHeight = 120; // 添加链接面板的高度
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            const left = (windowWidth - panelWidth) / 2;
+            const top = (windowHeight - panelHeight) / 2;
+            
+            addLinkPanel.style.left = left + 'px';
+            addLinkPanel.style.top = top + 'px';
+            
+            // 显示面板
+            addLinkPanel.style.display = 'flex';
+            
+            // 隐藏工具栏
+            hideToolbar();
+            
+            // 自动聚焦到输入框
+            setTimeout(() => {
+                const linkInput = document.getElementById('linkInput');
+                if (linkInput) {
+                    linkInput.focus();
+                }
+            }, 100);
+        }
+        
+        // 隐藏添加链接面板
+        function hideAddLinkPanel() {
+            const addLinkPanel = document.getElementById('addLinkPanel');
+            if (addLinkPanel) {
+                addLinkPanel.style.display = 'none';
+            }
+            
+            // 如果有选中的元素，显示工具栏
+            if (selectedElement) {
+                const rect = selectedElement.getBoundingClientRect();
+                showToolbar(rect, false);
+            }
+        }
+        
         // 显示替换图片面板
         function showReplaceImagePanel() {
             const replaceImagePanel = document.getElementById('replaceImagePanel');
@@ -3084,6 +3358,12 @@
             const replaceImagePanel = document.getElementById('replaceImagePanel');
             if (replaceImagePanel) {
                 replaceImagePanel.style.display = 'none';
+            }
+            
+            // 如果有选中的元素，显示工具栏
+            if (selectedElement) {
+                const rect = selectedElement.getBoundingClientRect();
+                showToolbar(rect, false);
             }
         }
 
