@@ -19,6 +19,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             background-color: #f5f5f7;
             color: #1d1d1f;
+            overflow: hidden; /* 防止整体滚动 */
         }
 
         .left-panel {
@@ -29,21 +30,25 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             margin: 16px;
+            overflow-y: auto; /* 添加滚动条 */
+            height: calc(100vh - 32px); /* 设置高度 */
         }
 
         .right-panel {
-            width: 320px;
-            padding: 24px;
-            background-color: #ffffff;
-            border-left: 1px solid rgba(0, 0, 0, 0.1);
+            width: 432px;
+            background-color: #F7F6F5;
+            border: 1px solid rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            position: relative;
+            position: fixed; /* 固定位置 */
+            right: 16px; /* 右侧固定 */
+            top: 16px; /* 顶部固定 */
             box-shadow: -1px 0 3px rgba(0, 0, 0, 0.05);
-            margin: 16px 16px 16px 0;
+            padding: 16px 0 16px 0; /* 调整内边距 */
             border-radius: 12px;
             height: calc(100vh - 32px);
             overflow: hidden;
+            z-index: 100; /* 确保在其他元素上方 */
         }
 
         .element {
@@ -83,40 +88,104 @@
         }
 
         .toolbar {
-            position: absolute;
-            width: 180px;
-            background-color: #000000;
-            border-radius: 16px;
-            padding: 16px 0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            position: fixed; /* 改为固定定位 */
+            width: 220px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 12px 0;
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.32), 0px 0px 8px 0px rgba(0, 0, 0, 0.08);
             display: none;
-            z-index: 10;
+            z-index: 1000; /* 提高层级 */
             animation: fadeIn 0.2s ease;
-            overflow: hidden;
+            overflow: visible;
             /* 添加用于拖动的属性 */
             user-select: none;
             transition: box-shadow 0.2s ease, transform 0.2s ease;
         }
 
+        /* 箭头SVG样式 */
+        .toolbar-arrow {
+            position: absolute;
+            right: -13px; /* 箭头宽度 */
+            bottom: 50px; /* 调整箭头的垂直位置，与图片对应 */
+            filter: drop-shadow(1px 0px 2px rgba(49, 49, 49, 0.15));
+            z-index: -1;
+            pointer-events: none;
+            width: 13px;
+            height: 32px;
+            transform: rotate(0deg); /* 将箭头旋转,使其水平指向 */
+        }
+        
+        /* 拖动时箭头的样式 */
+        .toolbar.dragging .toolbar-arrow {
+            filter: drop-shadow(2px 1px 3px rgba(0, 0, 0, 0.25));
+        }
+
         .toolbar.dragging {
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
             transform: scale(1.02);
         }
 
+        .toolbar.dragging::after {
+            box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, 0.12);
+        }
+
         .toolbar-title {
-            color: #999999;
-            font-size: 14px;
-            padding: 8px 20px;
-            margin-bottom: 8px;
+            color: #333333;
+            font-size: 15px;
+            padding: 10px 10px 0px 16px;
+            margin-bottom: 10px;
             cursor: move; /* 显示拖动光标 */
             position: relative; /* 为定位拖动手柄 */
+            font-weight: 500;
+            opacity: 0.35; /* 添加35%不透明度 */
         }
 
         .toolbar-title::before {
-            content: "≡"; /* 简单的拖动图标 */
+            content: ""; /* 移除拖动图标 */
             position: absolute;
             left: 8px;
             color: #666;
+        }
+        
+        .toolbar-divider {
+            padding: 4px 20px;
+            margin: 0px 0;
+        }
+        
+        .delete-button {
+            margin-top: 5px !important;
+        }
+        
+        /* IP人物容器样式 */
+        .ip-character-container {
+            position: fixed; /* 改为固定定位 */
+            width: 60px;
+            height: 60px;
+            z-index: 999; /* 确保在工具栏下方 */
+            pointer-events: none;
+            display: none;
+            filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.15));
+            transform-origin: center center;
+            animation: appearAnimation 0.3s ease-out;
+        }
+        
+        .ip-character-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            animation: floatAnimation 3s ease-in-out infinite;
+        }
+        
+        @keyframes appearAnimation {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes floatAnimation {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
         }
 
         @keyframes fadeIn {
@@ -128,19 +197,20 @@
             display: flex;
             align-items: center;
             width: 100%;
-            margin: 0;
-            padding: 12px 20px;
+            margin: 2px 0;
+            padding: 10px 20px;
             border: none;
             background-color: transparent;
             cursor: pointer;
             font-size: 16px;
             text-align: left;
-            color: #ffffff;
+            color: #333333;
             transition: all 0.1s ease;
+            border-radius: 0;
         }
 
         .toolbar button:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(0, 0, 0, 0.05);
         }
 
         .toolbar button .icon {
@@ -151,13 +221,16 @@
         .input-container {
             margin-top: auto;
             position: relative;
+            width: calc(100% - 32px);
+            margin-left: 16px;
+            margin-right: 16px;
         }
         
         /* 对话记录区域样式 */
         .chat-history {
             flex: 1;
             overflow-y: auto;
-            padding: 16px 0;
+            padding: 16px 24px; /* 调整内边距 */
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -194,18 +267,18 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            min-height: 80px;
-            padding: 10px 12px;
+            min-height: 104px;
+            max-height: 180px;
             border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            background-color: #f5f5f7;
+            border-radius: 12px;
+            background-color: #FFF;
             transition: all 0.2s ease;
+            overflow: hidden;
         }
         
         .input-wrapper.focused {
             border-color: #0071e3;
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2);
-            background-color: #ffffff;
         }
         
         /* 输入框焦点动画 */
@@ -232,24 +305,70 @@
         .input-content-container {
             flex: 1;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: 120px;
         }
-
-        .right-panel input {
+        
+        .input-text-area {
             flex: 1;
-            padding: 8px 0;
+            padding: 12px 16px;
+            min-height: 40px;
             border: none;
             font-size: 14px;
             background-color: transparent;
             outline: none;
-        }
-
-        .right-panel input:focus {
-            border-color: transparent;
-            box-shadow: none;
+            resize: none;
+            overflow-y: auto;
         }
         
-        /* 输入框标签样式 */
+        .input-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-left-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .input-right-actions {
+            display: flex;
+        }
+        
+        .action-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .action-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #333;
+        }
+        
+        .send-button {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .send-button:hover {
+            background-color: #0077ed;
+        }
+        
         .input-tag {
             display: inline-flex;
             align-items: center;
@@ -346,6 +465,7 @@
             font-weight: 600;
             margin-bottom: 16px;
             color: #1d1d1f;
+            padding: 0 24px; /* 添加左右内边距 */
         }
 
         /* 新增网页元素样式 */
@@ -576,11 +696,25 @@
 
         <div class="toolbar" id="toolbar">
             <div class="toolbar-title" id="toolbarDragHandle">Kimmy 猜你想</div>
-            <button id="askKimiBtn"><span class="icon">💬</span> 问问 Kimi</button>
-            <button><span class="icon">🔗</span> 修改链接</button>
             <button><span class="icon">✍️</span> 修改文本</button>
-            <button><span class="icon">👆</span> 替换图标</button>
-            <button><span class="icon">🗑️</span> 删除</button>
+            <button><span class="icon">🔗</span> 修改链接</button>
+            <div class="toolbar-divider">
+                <svg xmlns="http://www.w3.org/2000/svg" width="148" height="2" viewBox="0 0 148 2" fill="none">
+                  <path d="M0 1H148" stroke="black" stroke-opacity="0.3" stroke-linejoin="round" stroke-dasharray="1 3"/>
+                </svg>
+            </div>
+            <button class="delete-button"><span class="icon">🗑️</span> 删除文本</button>
+            <!-- 添加箭头SVG -->
+            <div class="toolbar-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="32" viewBox="0 0 13 32" fill="none">
+                    <path d="M11.6226 13.7987C12.905 14.9861 12.905 17.0139 11.6226 18.2013L3.09424 26.0979C1.416 27.6518 0.323455 29.7358 1.46226e-06 32L2.86102e-06 -6.11959e-07C0.323455 2.26418 1.416 4.34815 3.09424 5.90207L11.6226 13.7987Z" fill="white"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- 将IP人物单独放置 -->
+        <div class="ip-character-container" id="ipCharacterContainer">
+            <img src="IP人物.png" alt="IP角色" id="ipCharacter">
         </div>
     </div>
     <div class="right-panel">
@@ -604,7 +738,16 @@
             <div class="input-wrapper" id="inputWrapper">
                 <div id="inputTagContainer" class="input-tag-container"></div>
                 <div class="input-content-container">
-                    <input type="text" id="mainInput" placeholder="按任意键聚焦...">
+                    <textarea id="mainInput" class="input-text-area" placeholder="按任意键聚焦..." rows="1"></textarea>
+                </div>
+                <div class="input-actions">
+                    <div class="input-left-actions">
+                        <button class="action-button">➕</button>
+                        <button class="action-button">📎</button>
+                    </div>
+                    <div class="input-right-actions">
+                        <button class="send-button">发送</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -617,7 +760,6 @@
         const suggestionPanel = document.getElementById('suggestionPanel');
         const inputWrapper = document.getElementById('inputWrapper');
         const inputTagContainer = document.getElementById('inputTagContainer');
-        const askKimiBtn = document.getElementById('askKimiBtn');
         let lastMousePosition = { x: 0, y: 0 };
         let lastMoveTime = Date.now();
         let isToolbarVisible = false;
@@ -823,8 +965,52 @@
                 toolbar.style.left = lastToolbarPosition.left + 'px';
             } else {
                 // 否则使用默认计算方式
-                toolbar.style.top = rect.bottom + 12 + 'px';
-                toolbar.style.left = rect.left + 'px';
+                // 根据窗口大小和元素位置计算最合适的位置
+                const windowWidth = window.innerWidth;
+                const windowHeight = window.innerHeight;
+                
+                // 获取左侧面板的滚动位置和位置信息
+                const leftPanelRect = leftPanel.getBoundingClientRect();
+                
+                // 优先显示在元素右侧
+                let left = rect.right + 10;
+                let top = rect.top;
+                
+                // 计算工具栏的尺寸
+                const toolbarWidth = 220; // 与CSS中定义的宽度一致
+                const toolbarHeight = 180; // 估计高度
+                
+                // 检查右侧是否有足够空间
+                if (left + toolbarWidth > windowWidth - 450) { // 考虑右侧面板宽度
+                    // 如果右侧空间不够，尝试放在左侧
+                    left = rect.left - toolbarWidth - 10;
+                    
+                    // 如果左侧也没有足够空间，则放在下方居中
+                    if (left < leftPanelRect.left + 20) {
+                        left = rect.left + (rect.width - toolbarWidth) / 2;
+                        top = rect.bottom + 10;
+                        
+                        // 确保不会超出左边界
+                        if (left < leftPanelRect.left + 20) left = leftPanelRect.left + 20;
+                        // 确保不会超出右边界
+                        if (left + toolbarWidth > windowWidth - 450) {
+                            left = windowWidth - 450 - toolbarWidth - 20;
+                        }
+                    }
+                }
+                
+                // 确保工具栏不会超出底部边界
+                if (top + toolbarHeight > windowHeight - 20) {
+                    top = Math.max(leftPanelRect.top + 20, windowHeight - toolbarHeight - 20);
+                }
+                
+                // 确保工具栏不会超出顶部边界
+                if (top < leftPanelRect.top + 20) {
+                    top = leftPanelRect.top + 20;
+                }
+                
+                toolbar.style.top = top + 'px';
+                toolbar.style.left = left + 'px';
             }
             
             isToolbarVisible = true;
@@ -835,6 +1021,25 @@
                 clearTimeout(leftPanelLeaveTimer);
                 leftPanelLeaveTimer = null;
             }
+            
+            // 显示IP人物图像
+            showIpCharacter();
+        }
+        
+        // 显示IP人物图像
+        function showIpCharacter() {
+            const ipCharacterContainer = document.getElementById('ipCharacterContainer');
+            if (!ipCharacterContainer) return;
+            
+            // 显示IP人物容器
+            ipCharacterContainer.style.display = 'block';
+            
+            // 获取工具栏的位置
+            const toolbarRect = toolbar.getBoundingClientRect();
+            
+            // 将IP人物定位到工具栏右侧
+            ipCharacterContainer.style.top = (toolbarRect.top + toolbarRect.height / 2 + 20) + 'px';
+            ipCharacterContainer.style.left = (toolbarRect.right + 20) + 'px';
         }
 
         // 隐藏工具栏函数
@@ -853,6 +1058,12 @@
             if (leftPanelLeaveTimer) {
                 clearTimeout(leftPanelLeaveTimer);
                 leftPanelLeaveTimer = null;
+            }
+            
+            // 隐藏IP人物
+            const ipCharacterContainer = document.getElementById('ipCharacterContainer');
+            if (ipCharacterContainer) {
+                ipCharacterContainer.style.display = 'none';
             }
         }
 
@@ -1031,6 +1242,9 @@
                     // 更新工具栏位置
                     toolbar.style.left = finalLeft + 'px';
                     toolbar.style.top = finalTop + 'px';
+                    
+                    // 同时更新IP人物位置
+                    updateIpCharacterPosition();
                 }
             });
             
@@ -1048,6 +1262,9 @@
                         left: toolbarRect.left
                     };
                     hasCustomPosition = true;
+                    
+                    // 更新IP人物位置
+                    updateIpCharacterPosition();
                 }
             });
             
@@ -1073,32 +1290,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             initSelectableElements();
             initToolbarDrag();
-            initAskKimiButton();
             initInputFocus();
             initSuggestionItems();
         });
-        
-        // 初始化"问问 Kimi"按钮功能
-        function initAskKimiButton() {
-            if (!askKimiBtn) return;
-            
-            askKimiBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // 隐藏工具栏
-                hideToolbar();
-                
-                // 聚焦输入框并添加动画效果
-                focusInputWithAnimation();
-                
-                // 生成选中元素的标签
-                generateInputTag();
-                
-                // 显示建议面板
-                suggestionPanel.classList.add('visible');
-            });
-        }
         
         // 添加消息到对话记录
         function addMessage(text, type) {
@@ -1192,9 +1386,20 @@
         // 初始化输入框焦点处理
         function initInputFocus() {
             const inputContainer = document.querySelector('.input-container');
+            const textArea = document.getElementById('mainInput');
+            
+            // 自动调整文本区域高度
+            function adjustTextAreaHeight() {
+                textArea.style.height = 'auto';
+                const newHeight = Math.min(textArea.scrollHeight, 120); // 最大高度限制
+                textArea.style.height = newHeight + 'px';
+            }
+            
+            // 监听输入事件调整高度
+            textArea.addEventListener('input', adjustTextAreaHeight);
             
             // 输入框获得焦点
-            mainInput.addEventListener('focus', () => {
+            textArea.addEventListener('focus', () => {
                 inputWrapper.classList.add('focused');
                 
                 if (selectedElement) {
@@ -1208,7 +1413,7 @@
             });
             
             // 输入框失去焦点
-            mainInput.addEventListener('blur', () => {
+            textArea.addEventListener('blur', () => {
                 inputWrapper.classList.remove('focused');
                 
                 // 只有在输入框失焦时才隐藏建议面板
@@ -1222,23 +1427,51 @@
             });
             
             // 监听回车键发送消息
-            mainInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && e.target.value.trim() !== '') {
-                    // 获取输入内容
-                    const messageText = e.target.value.trim();
+            textArea.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); // 阻止默认的换行行为
                     
-                    // 发送消息
-                    addMessage(messageText, 'user');
-                    
-                    // 模拟AI回复
-                    setTimeout(() => {
-                        addMessage('收到您的消息，我正在处理...', 'ai');
-                    }, 1000);
-                    
-                    // 清空输入框
-                    mainInput.value = '';
+                    if (textArea.value.trim() !== '') {
+                        // 获取输入内容
+                        const messageText = textArea.value.trim();
+                        
+                        // 发送消息
+                        addMessage(messageText, 'user');
+                        
+                        // 模拟AI回复
+                        setTimeout(() => {
+                            addMessage('收到您的消息，我正在处理...', 'ai');
+                        }, 1000);
+                        
+                        // 清空输入框
+                        textArea.value = '';
+                        adjustTextAreaHeight(); // 重置高度
+                    }
                 }
             });
+            
+            // 发送按钮点击事件
+            const sendButton = document.querySelector('.send-button');
+            if (sendButton) {
+                sendButton.addEventListener('click', () => {
+                    if (textArea.value.trim() !== '') {
+                        // 获取输入内容
+                        const messageText = textArea.value.trim();
+                        
+                        // 发送消息
+                        addMessage(messageText, 'user');
+                        
+                        // 模拟AI回复
+                        setTimeout(() => {
+                            addMessage('收到您的消息，我正在处理...', 'ai');
+                        }, 1000);
+                        
+                        // 清空输入框
+                        textArea.value = '';
+                        adjustTextAreaHeight(); // 重置高度
+                    }
+                });
+            }
         }
         
         // 初始化建议项点击事件
@@ -1261,6 +1494,27 @@
                 });
             });
         }
+
+        // 更新IP人物位置的函数
+        function updateIpCharacterPosition() {
+            const ipCharacterContainer = document.getElementById('ipCharacterContainer');
+            if (!ipCharacterContainer || toolbar.style.display === 'none') return;
+            
+            const toolbarRect = toolbar.getBoundingClientRect();
+            
+            // 将IP人物定位到工具栏右侧
+            ipCharacterContainer.style.top = (toolbarRect.top + toolbarRect.height / 2 - 30) + 'px';
+            ipCharacterContainer.style.left = (toolbarRect.right + 5) + 'px';
+        }
+
+        // 监听左侧面板滚动事件，更新工具栏位置
+        leftPanel.addEventListener('scroll', () => {
+            // 如果工具栏可见且有选中元素，更新工具栏位置
+            if (isToolbarVisible && selectedElement && !hasCustomPosition) {
+                const rect = selectedElement.getBoundingClientRect();
+                showToolbar(rect, isSecondAppearance);
+            }
+        });
     </script>
 </body>
 </html> 
