@@ -22,31 +22,37 @@
             overflow: hidden; /* 防止整体滚动 */
         }
 
+        .container {
+            display: flex;
+            width: calc(100% - 32px);
+            height: calc(100vh - 32px);
+            margin: 16px;
+            background: #EDECEB;
+            gap: 10px;
+        }
+
         .left-panel {
-            flex: 1;
+            flex: 75%;
             padding: 24px;
             background-color: #ffffff;
             position: relative;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
-            margin: 16px;
             overflow-y: auto; /* 添加滚动条 */
-            height: calc(100vh - 32px); /* 设置高度 */
+            height: 100%; /* 使用100%高度 */
         }
 
         .right-panel {
-            width: 432px;
+            flex: 25%;
             background-color: #F7F6F5;
             border: 1px solid rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            position: fixed; /* 固定位置 */
-            right: 16px; /* 右侧固定 */
-            top: 16px; /* 顶部固定 */
+            position: relative; /* 改回相对定位 */
             box-shadow: -1px 0 3px rgba(0, 0, 0, 0.05);
             padding: 16px 0 16px 0; /* 调整内边距 */
             border-radius: 12px;
-            height: calc(100vh - 32px);
+            height: 100%; /* 使用100%高度 */
             overflow: hidden;
             z-index: 100; /* 确保在其他元素上方 */
         }
@@ -79,6 +85,14 @@
             outline: 3px solid #0071e3;
             background-color: rgba(0, 113, 227, 0.05);
             box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
+        }
+
+        /* 添加 hover 元素的框体 UI 样式 */
+        [data-selectable="true"]:hover:not(.selected) {
+            outline: 2px solid #0071e3;
+            outline-offset: 2px;
+            box-shadow: 0 0 4px rgba(0, 113, 227, 0.15);
+            transition: all 0.2s ease;
         }
 
         /* 子元素被选中时父元素的样式 */
@@ -224,6 +238,7 @@
             width: calc(100% - 32px);
             margin-left: 16px;
             margin-right: 16px;
+            margin-bottom: 16px;
         }
         
         /* 对话记录区域样式 */
@@ -274,6 +289,7 @@
             background-color: #FFF;
             transition: all 0.2s ease;
             overflow: hidden;
+            position: relative;
         }
         
         .input-wrapper.focused {
@@ -292,14 +308,82 @@
             animation: focusAttention 0.6s ease;
         }
         
+        @keyframes tagAppear {
+            0% { transform: translateY(-10px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes tagDisappear {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-10px); opacity: 0; }
+        }
+        
+        @keyframes pulseEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
         .input-tag-container {
+            display: flex; /* 始终使用 flex 布局 */
+            align-items: center;
+            justify-content: space-between;
+            min-height: 37px;
+            background-color: #000;
+            border-radius: 12px 12px 0 0;
+            padding: 0 12px;
+            position: relative;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease, height 0.3s ease;
+        }
+        
+        .input-tag-container.visible {
+            opacity: 1;
+            height: 37px;
+            animation: tagAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .input-tag-container.hiding {
+            opacity: 0;
+            height: 0;
+            animation: tagDisappear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .input-tag {
             display: flex;
             align-items: center;
-            flex-wrap: wrap;
-            min-height: 30px;
-            margin-bottom: 6px;
-            padding-bottom: 6px;
-            border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+            font-size: 14px;
+            color: #fff;
+            font-weight: 500;
+            animation: pulseEffect 0.5s ease;
+        }
+        
+        .input-tag .icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .input-tag-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        
+        .input-tag-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
         }
         
         .input-content-container {
@@ -308,6 +392,7 @@
             flex-direction: column;
             overflow-y: auto;
             max-height: 120px;
+            border-radius: 0 0 12px 12px;
         }
         
         .input-text-area {
@@ -367,30 +452,6 @@
         
         .send-button:hover {
             background-color: #0077ed;
-        }
-        
-        .input-tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: #e8f0fe;
-            border-radius: 6px;
-            padding: 6px 10px;
-            margin-right: 8px;
-            margin-bottom: 4px;
-            font-size: 13px;
-            line-height: 1;
-            color: #0071e3;
-            user-select: none;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            border: 1px solid rgba(0, 113, 227, 0.2);
-        }
-        
-        .input-tag .icon {
-            margin-right: 6px;
-            font-size: 14px;
         }
         
         .suggestion-panel {
@@ -632,121 +693,122 @@
     </style>
 </head>
 <body>
-    <div class="left-panel" id="leftPanel">
-        <div class="hero-section">
-            <h1 class="hero-title">探索无限可能</h1>
-            <p class="hero-description">发现创新科技，连接智慧未来。我们致力于为您提供最前沿的技术资讯和解决方案。</p>
-        </div>
+    <div class="container">
+        <div class="left-panel" id="leftPanel">
+            <div class="hero-section">
+                <h1 class="hero-title">探索无限可能</h1>
+                <p class="hero-description">发现创新科技，连接智慧未来。我们致力于为您提供最前沿的技术资讯和解决方案。</p>
+            </div>
 
-        <div class="card-grid">
-            <div class="feature-card element" data-element="1">
-                <div class="feature-icon">🚀</div>
-                <h3 class="feature-title">快速部署</h3>
-                <p class="feature-description">只需几分钟即可完成应用部署，让您的想法立即变为现实。</p>
+            <div class="card-grid">
+                <div class="feature-card element" data-element="1">
+                    <div class="feature-icon">🚀</div>
+                    <h3 class="feature-title">快速部署</h3>
+                    <p class="feature-description">只需几分钟即可完成应用部署，让您的想法立即变为现实。</p>
+                </div>
+                <div class="feature-card element" data-element="2">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 class="feature-title">安全可靠</h3>
+                    <p class="feature-description">企业级安全保障，为您的数据提供全方位防护。</p>
+                </div>
+                <div class="feature-card element" data-element="3">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">数据分析</h3>
+                    <p class="feature-description">强大的分析工具，助您洞察业务趋势。</p>
+                </div>
             </div>
-            <div class="feature-card element" data-element="2">
-                <div class="feature-icon">🛡️</div>
-                <h3 class="feature-title">安全可靠</h3>
-                <p class="feature-description">企业级安全保障，为您的数据提供全方位防护。</p>
-            </div>
-            <div class="feature-card element" data-element="3">
-                <div class="feature-icon">📊</div>
-                <h3 class="feature-title">数据分析</h3>
-                <p class="feature-description">强大的分析工具，助您洞察业务趋势。</p>
-            </div>
-        </div>
 
-        <div class="content-section">
-            <h2 class="section-title">最新动态</h2>
-            <article class="article element" data-element="4">
-                <h3 class="article-title">人工智能革新产业未来</h3>
-                <div class="article-meta">
-                    <span>发布于 2024-03-21</span>
-                    <span>阅读时间 5 分钟</span>
-                </div>
-                <img src="https://picsum.photos/800/400" alt="AI Technology" class="article-image">
-                <p class="article-content">人工智能技术正在重塑各个行业，从医疗保健到金融服务，AI 的应用范围不断扩大。本文将深入探讨 AI 技术如何改变我们的工作方式和生活方式。</p>
-                <div class="tags">
-                    <span class="tag">人工智能</span>
-                    <span class="tag">技术创新</span>
-                    <span class="tag">数字转型</span>
-                </div>
-            </article>
-
-            <article class="article element" data-element="5">
-                <h3 class="article-title">云计算技术发展趋势</h3>
-                <div class="article-meta">
-                    <span>发布于 2024-03-20</span>
-                    <span>阅读时间 4 分钟</span>
-                </div>
-                <p class="article-content">随着数字化转型的深入，云计算技术在企业中的应用越来越广泛。本文将为您解析云计算的最新发展趋势和最佳实践。</p>
-                <div class="tags">
-                    <span class="tag">云计算</span>
-                    <span class="tag">企业服务</span>
-                    <span class="tag">技术趋势</span>
-                </div>
-            </article>
-        </div>
-
-        <div class="newsletter-section">
-            <h3 class="newsletter-title">订阅我们的新闻简报</h3>
-            <p class="newsletter-description">及时了解最新技术动态和行业见解，每周精选内容直达您的邮箱。</p>
-            <a href="#" class="cta-button">立即订阅</a>
-        </div>
-
-        <div class="toolbar" id="toolbar">
-            <div class="toolbar-title" id="toolbarDragHandle">Kimmy 猜你想</div>
-            <button><span class="icon">✍️</span> 修改文本</button>
-            <button><span class="icon">🔗</span> 修改链接</button>
-            <div class="toolbar-divider">
-                <svg xmlns="http://www.w3.org/2000/svg" width="148" height="2" viewBox="0 0 148 2" fill="none">
-                  <path d="M0 1H148" stroke="black" stroke-opacity="0.3" stroke-linejoin="round" stroke-dasharray="1 3"/>
-                </svg>
-            </div>
-            <button class="delete-button"><span class="icon">🗑️</span> 删除文本</button>
-            <!-- 添加箭头SVG -->
-            <div class="toolbar-arrow">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="32" viewBox="0 0 13 32" fill="none">
-                    <path d="M11.6226 13.7987C12.905 14.9861 12.905 17.0139 11.6226 18.2013L3.09424 26.0979C1.416 27.6518 0.323455 29.7358 1.46226e-06 32L2.86102e-06 -6.11959e-07C0.323455 2.26418 1.416 4.34815 3.09424 5.90207L11.6226 13.7987Z" fill="white"/>
-                </svg>
-            </div>
-        </div>
-        
-        <!-- 将IP人物单独放置 -->
-        <div class="ip-character-container" id="ipCharacterContainer">
-            <img src="IP人物.png" alt="IP角色" id="ipCharacter">
-        </div>
-    </div>
-    <div class="right-panel">
-        <h2 class="panel-title">对话面板</h2>
-        
-        <!-- 添加对话记录区域 -->
-        <div class="chat-history" id="chatHistory">
-            <!-- 这里将显示对话记录 -->
-        </div>
-        
-        <div class="input-container">
-            <div class="suggestion-panel" id="suggestionPanel">
-                <div class="suggestion-header">
-                    <span class="icon">✨</span>
-                    <span>Suggestion</span>
-                </div>
-                <div class="suggestion-item">增加元素的文本大小</div>
-                <div class="suggestion-item">增加元素之间的间距</div>
-                <div class="suggestion-item">减小背景透明度</div>
-            </div>
-            <div class="input-wrapper" id="inputWrapper">
-                <div id="inputTagContainer" class="input-tag-container"></div>
-                <div class="input-content-container">
-                    <textarea id="mainInput" class="input-text-area" placeholder="按任意键聚焦..." rows="1"></textarea>
-                </div>
-                <div class="input-actions">
-                    <div class="input-left-actions">
-                        <button class="action-button">➕</button>
-                        <button class="action-button">📎</button>
+            <div class="content-section">
+                <h2 class="section-title">最新动态</h2>
+                <article class="article element" data-element="4">
+                    <h3 class="article-title">人工智能革新产业未来</h3>
+                    <div class="article-meta">
+                        <span>发布于 2024-03-21</span>
+                        <span>阅读时间 5 分钟</span>
                     </div>
-                    <div class="input-right-actions">
-                        <button class="send-button">发送</button>
+                    <img src="https://picsum.photos/800/400" alt="AI Technology" class="article-image">
+                    <p class="article-content">人工智能技术正在重塑各个行业，从医疗保健到金融服务，AI 的应用范围不断扩大。本文将深入探讨 AI 技术如何改变我们的工作方式和生活方式。</p>
+                    <div class="tags">
+                        <span class="tag">人工智能</span>
+                        <span class="tag">技术创新</span>
+                        <span class="tag">数字转型</span>
+                    </div>
+                </article>
+
+                <article class="article element" data-element="5">
+                    <h3 class="article-title">云计算技术发展趋势</h3>
+                    <div class="article-meta">
+                        <span>发布于 2024-03-20</span>
+                        <span>阅读时间 4 分钟</span>
+                    </div>
+                    <p class="article-content">随着数字化转型的深入，云计算技术在企业中的应用越来越广泛。本文将为您解析云计算的最新发展趋势和最佳实践。</p>
+                    <div class="tags">
+                        <span class="tag">云计算</span>
+                        <span class="tag">企业服务</span>
+                        <span class="tag">技术趋势</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="newsletter-section">
+                <h3 class="newsletter-title">订阅我们的新闻简报</h3>
+                <p class="newsletter-description">及时了解最新技术动态和行业见解，每周精选内容直达您的邮箱。</p>
+                <a href="#" class="cta-button">立即订阅</a>
+            </div>
+
+            <div class="toolbar" id="toolbar">
+                <div class="toolbar-title" id="toolbarDragHandle">Kimmy 猜你想</div>
+                <button><span class="icon">✍️</span> 修改文本</button>
+                <button><span class="icon">🔗</span> 修改链接</button>
+                <div class="toolbar-divider">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="148" height="2" viewBox="0 0 148 2" fill="none">
+                      <path d="M0 1H148" stroke="black" stroke-opacity="0.3" stroke-linejoin="round" stroke-dasharray="1 3"/>
+                    </svg>
+                </div>
+                <button class="delete-button"><span class="icon">🗑️</span> 删除文本</button>
+                <!-- 添加箭头SVG -->
+                <div class="toolbar-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="32" viewBox="0 0 13 32" fill="none">
+                        <path d="M11.6226 13.7987C12.905 14.9861 12.905 17.0139 11.6226 18.2013L3.09424 26.0979C1.416 27.6518 0.323455 29.7358 1.46226e-06 32L2.86102e-06 -6.11959e-07C0.323455 2.26418 1.416 4.34815 3.09424 5.90207L11.6226 13.7987Z" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- 将IP人物单独放置 -->
+            <div class="ip-character-container" id="ipCharacterContainer">
+                <img src="IP人物.png" alt="IP角色" id="ipCharacter">
+            </div>
+        </div>
+        <div class="right-panel">
+            
+            <!-- 添加对话记录区域 -->
+            <div class="chat-history" id="chatHistory">
+                <!-- 这里将显示对话记录 -->
+            </div>
+            
+            <div class="input-container">
+                <div class="suggestion-panel" id="suggestionPanel">
+                    <div class="suggestion-header">
+                        <span class="icon">✨</span>
+                        <span>Suggestion</span>
+                    </div>
+                    <div class="suggestion-item">增加元素的文本大小</div>
+                    <div class="suggestion-item">增加元素之间的间距</div>
+                    <div class="suggestion-item">减小背景透明度</div>
+                </div>
+                <div class="input-wrapper" id="inputWrapper">
+                    <div id="inputTagContainer" class="input-tag-container"></div>
+                    <div class="input-content-container">
+                        <textarea id="mainInput" class="input-text-area" placeholder="按任意键聚焦..." rows="1"></textarea>
+                    </div>
+                    <div class="input-actions">
+                        <div class="input-left-actions">
+                            <button class="action-button">➕</button>
+                            <button class="action-button">📎</button>
+                        </div>
+                        <div class="input-right-actions">
+                            <button class="send-button">发送</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -894,6 +956,19 @@
             if (document.activeElement === mainInput) {
                 suggestionPanel.classList.add('visible');
             }
+            
+            // 确保标签容器不包含hiding类，并且先移除visible类，以便重新触发动画
+            inputTagContainer.classList.remove('hiding');
+            inputTagContainer.classList.remove('visible');
+            
+            // 清空标签容器，然后重新生成标签
+            inputTagContainer.innerHTML = '';
+            
+            // 生成输入框标签，并在短暂延迟后显示（确保DOM更新）
+            setTimeout(() => {
+                generateInputTag();
+                inputTagContainer.classList.add('visible');
+            }, 10);
         }
         
         // 取消选中元素函数
@@ -923,12 +998,23 @@
                 
                 selectedElement = null;
                 
-                if (hideToolbarFlag) {
-                    hideToolbar();
-                }
+                // 始终隐藏工具栏，无论hideToolbarFlag参数如何
+                hideToolbar();
                 
                 // 同时隐藏suggestion面板
                 suggestionPanel.classList.remove('visible');
+                
+                // 立即清空标签容器的内容，然后再添加隐藏动画
+                if (inputTagContainer.classList.contains('visible')) {
+                    inputTagContainer.classList.add('hiding');
+                    inputTagContainer.classList.remove('visible');
+                    
+                    // 动画结束后清空内容
+                    setTimeout(() => {
+                        inputTagContainer.classList.remove('hiding');
+                        inputTagContainer.innerHTML = '';
+                    }, 300);
+                }
             }
         }
 
@@ -959,6 +1045,12 @@
             // 定位工具栏
             toolbar.style.display = 'block';
             
+            // 清空工具栏按钮
+            clearToolbarButtons();
+            
+            // 添加基于选中元素类型的按钮
+            addToolbarButtonsByElementType();
+            
             // 如果工具栏有自定义位置，使用上次的位置
             if (hasCustomPosition && lastToolbarPosition) {
                 toolbar.style.top = lastToolbarPosition.top + 'px';
@@ -969,8 +1061,9 @@
                 const windowWidth = window.innerWidth;
                 const windowHeight = window.innerHeight;
                 
-                // 获取左侧面板的滚动位置和位置信息
+                // 获取左侧面板的位置信息
                 const leftPanelRect = leftPanel.getBoundingClientRect();
+                const containerRect = document.querySelector('.container').getBoundingClientRect();
                 
                 // 优先显示在元素右侧
                 let left = rect.right + 10;
@@ -980,8 +1073,11 @@
                 const toolbarWidth = 220; // 与CSS中定义的宽度一致
                 const toolbarHeight = 180; // 估计高度
                 
+                // 获取右侧面板的位置
+                const rightPanelRect = document.querySelector('.right-panel').getBoundingClientRect();
+                
                 // 检查右侧是否有足够空间
-                if (left + toolbarWidth > windowWidth - 450) { // 考虑右侧面板宽度
+                if (left + toolbarWidth > rightPanelRect.left - 10) {
                     // 如果右侧空间不够，尝试放在左侧
                     left = rect.left - toolbarWidth - 10;
                     
@@ -993,15 +1089,15 @@
                         // 确保不会超出左边界
                         if (left < leftPanelRect.left + 20) left = leftPanelRect.left + 20;
                         // 确保不会超出右边界
-                        if (left + toolbarWidth > windowWidth - 450) {
-                            left = windowWidth - 450 - toolbarWidth - 20;
+                        if (left + toolbarWidth > rightPanelRect.left - 10) {
+                            left = rightPanelRect.left - toolbarWidth - 10;
                         }
                     }
                 }
                 
                 // 确保工具栏不会超出底部边界
-                if (top + toolbarHeight > windowHeight - 20) {
-                    top = Math.max(leftPanelRect.top + 20, windowHeight - toolbarHeight - 20);
+                if (top + toolbarHeight > containerRect.bottom - 20) {
+                    top = Math.max(leftPanelRect.top + 20, containerRect.bottom - toolbarHeight - 20);
                 }
                 
                 // 确保工具栏不会超出顶部边界
@@ -1038,7 +1134,7 @@
             const toolbarRect = toolbar.getBoundingClientRect();
             
             // 将IP人物定位到工具栏右侧
-            ipCharacterContainer.style.top = (toolbarRect.top + toolbarRect.height / 2 + 20) + 'px';
+            ipCharacterContainer.style.top = (toolbarRect.top + toolbarRect.height / 2 + 30) + 'px';
             ipCharacterContainer.style.left = (toolbarRect.right + 20) + 'px';
         }
 
@@ -1292,6 +1388,10 @@
             initToolbarDrag();
             initInputFocus();
             initSuggestionItems();
+            
+            // 初始化工具栏标题和分隔线引用
+            window.toolbarTitle = document.getElementById('toolbarDragHandle');
+            window.toolbarDivider = toolbar.querySelector('.toolbar-divider');
         });
         
         // 添加消息到对话记录
@@ -1332,55 +1432,61 @@
             // 清空标签容器
             inputTagContainer.innerHTML = '';
             
-            // 确定图标和内容
-            let icon = '📄';
-            let content = '文本';
-            
             // 根据选中元素类型确定图标和内容
+            let icon = '📄';
+            let content = 'Text';
+            
             if (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image')) {
                 icon = '🖼️';
-                content = '图片';
+                content = 'Img';
             } else if (selectedElement.classList.contains('feature-icon')) {
                 icon = '🔣';
-                content = '图标';
+                content = 'Icon';
             } else if (selectedElement.tagName === 'H1' || selectedElement.tagName === 'H2' || 
                       selectedElement.tagName === 'H3' || selectedElement.classList.contains('article-title') ||
                       selectedElement.classList.contains('feature-title')) {
                 icon = '📝';
-                content = '标题';
+                content = 'Title';
             } else if (selectedElement.tagName === 'P' || selectedElement.classList.contains('article-content')) {
                 icon = '📄';
-                content = '文本';
+                content = 'Text';
             } else if (selectedElement.classList.contains('tag')) {
                 icon = '🏷️';
-                content = '标签';
-            } else if (selectedElement.classList.contains('cta-button')) {
+                content = 'Tag';
+            } else if (selectedElement.classList.contains('cta-button') || 
+                      selectedElement.tagName === 'BUTTON' || 
+                      selectedElement.tagName === 'A') {
                 icon = '🔘';
-                content = '按钮';
+                content = 'Button';
             } else if (selectedElement.classList.contains('feature-card')) {
                 icon = '🃏';
-                content = '卡片';
+                content = 'Card';
             } else if (selectedElement.classList.contains('article')) {
                 icon = '📰';
-                content = '文章';
+                content = 'Article';
             }
             
-            // 获取元素的文本内容（如果有）
-            if (selectedElement.textContent && selectedElement.textContent.trim() !== '') {
-                content = selectedElement.textContent.trim();
-                // 限制长度
-                if (content.length > 20) {
-                    content = content.substring(0, 20) + '...';
-                }
-            }
-            
-            // 创建标签元素
+            // 创建左侧标签元素
             const tagElement = document.createElement('div');
             tagElement.className = 'input-tag';
             tagElement.innerHTML = `<span class="icon">${icon}</span> ${content}`;
             
+            // 创建右侧关闭按钮
+            const closeButton = document.createElement('button');
+            closeButton.className = 'input-tag-close';
+            closeButton.innerHTML = '✕';
+            closeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                deselectElement(true, true); // 取消选中并隐藏工具栏
+            });
+            
             // 添加到标签容器
             inputTagContainer.appendChild(tagElement);
+            inputTagContainer.appendChild(closeButton);
+            
+            // 显示标签容器
+            inputTagContainer.classList.add('visible');
         }
         
         // 初始化输入框焦点处理
@@ -1515,6 +1621,123 @@
                 showToolbar(rect, isSecondAppearance);
             }
         });
+
+        // 清空工具栏按钮
+        function clearToolbarButtons() {
+            // 保存标题和分隔线的引用
+            const title = toolbar.querySelector('.toolbar-title');
+            const divider = toolbar.querySelector('.toolbar-divider');
+            
+            // 移除所有按钮
+            toolbar.querySelectorAll('button').forEach(btn => btn.remove());
+            
+            // 清空工具栏
+            toolbar.innerHTML = '';
+            
+            // 重新添加标题和分隔线
+            if (title) toolbar.appendChild(title);
+            else {
+                const newTitle = document.createElement('div');
+                newTitle.className = 'toolbar-title';
+                newTitle.id = 'toolbarDragHandle';
+                newTitle.textContent = 'Kimmy 猜你想';
+                toolbar.appendChild(newTitle);
+            }
+            
+            if (divider) toolbar.appendChild(divider);
+            else {
+                const newDivider = document.createElement('div');
+                newDivider.className = 'toolbar-divider';
+                newDivider.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="148" height="2" viewBox="0 0 148 2" fill="none">
+                  <path d="M0 1H148" stroke="black" stroke-opacity="0.3" stroke-linejoin="round" stroke-dasharray="1 3"/>
+                </svg>`;
+                toolbar.appendChild(newDivider);
+            }
+        }
+        
+        // 根据选中元素类型添加工具栏按钮
+        function addToolbarButtonsByElementType() {
+            if (!selectedElement) return;
+            
+            let buttons = [];
+            
+            // 根据元素类型添加不同的按钮
+            if (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image')) {
+                // 图片类型
+                buttons = [
+                    { icon: '🔄', text: '替换图片' },
+                    { icon: '✨', text: '生成&优化' },
+                    { icon: '✂️', text: '裁剪图片' },
+                    { icon: '🔗', text: '添加链接' },
+                    { icon: '🗑️', text: '删除', class: 'delete-button' }
+                ];
+            } else if (selectedElement.classList.contains('feature-icon')) {
+                // 图标类型
+                buttons = [
+                    { icon: '🔄', text: '替换图标' },
+                    { icon: '🔗', text: '添加链接' },
+                    { icon: '🗑️', text: '删除', class: 'delete-button' }
+                ];
+            } else if (selectedElement.tagName === 'BUTTON' || 
+                      selectedElement.classList.contains('cta-button') || 
+                      selectedElement.tagName === 'A') {
+                // 按钮类型
+                buttons = [
+                    { icon: '✍️', text: '修改文本' },
+                    { icon: '🔗', text: '添加链接' },
+                    { icon: '🗑️', text: '删除', class: 'delete-button' }
+                ];
+            } else {
+                // 默认文本类型
+                buttons = [
+                    { icon: '✍️', text: '修改文本' },
+                    { icon: '🔗', text: '添加链接' },
+                    { icon: '🗑️', text: '删除', class: 'delete-button' }
+                ];
+            }
+            
+            // 添加按钮到工具栏
+            const title = toolbar.querySelector('.toolbar-title');
+            const divider = toolbar.querySelector('.toolbar-divider');
+            
+            buttons.forEach(btn => {
+                const button = document.createElement('button');
+                if (btn.class) button.className = btn.class;
+                button.innerHTML = `<span class="icon">${btn.icon}</span> ${btn.text}`;
+                
+                // 添加点击事件，点击后隐藏工具栏
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // 执行按钮对应的操作（这里可以添加具体功能）
+                    console.log(`执行操作: ${btn.text}`);
+                    
+                    // 隐藏工具栏
+                    hideToolbar();
+                    
+                    // 如果是删除按钮，还需要取消选中元素
+                    if (btn.class === 'delete-button') {
+                        deselectElement(true, true);
+                    }
+                });
+                
+                // 在分隔线之前插入普通按钮，在分隔线之后插入删除按钮
+                if (btn.class === 'delete-button') {
+                    toolbar.appendChild(button);
+                } else {
+                    toolbar.insertBefore(button, divider);
+                }
+            });
+            
+            // 添加箭头
+            const arrow = document.createElement('div');
+            arrow.className = 'toolbar-arrow';
+            arrow.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="32" viewBox="0 0 13 32" fill="none">
+                <path d="M11.6226 13.7987C12.905 14.9861 12.905 17.0139 11.6226 18.2013L3.09424 26.0979C1.416 27.6518 0.323455 29.7358 1.46226e-06 32L2.86102e-06 -6.11959e-07C0.323455 2.26418 1.416 4.34815 3.09424 5.90207L11.6226 13.7987Z" fill="white"/>
+            </svg>`;
+            toolbar.appendChild(arrow);
+        }
     </script>
 </body>
 </html> 
