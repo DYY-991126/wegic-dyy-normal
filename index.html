@@ -561,6 +561,20 @@
             color: #0071e3;
             cursor: pointer;
         }
+        
+        /* 添加选中/悬停时的背景样式 */
+        .suggestion-item:hover, .suggestion-item.active {
+            background-color: rgba(0, 113, 227, 0.08);
+            border-radius: 6px;
+            padding: 10px 8px;
+            margin: 0 -8px;
+        }
+        
+        /* 选中状态的样式 */
+        .suggestion-item.active {
+            color: #0071e3;
+            font-weight: 500;
+        }
 
         .suggestion-item:last-child {
             border-bottom: none;
@@ -1090,6 +1104,7 @@
         let lastMoveTime = Date.now();
         let isToolbarVisible = false;
         let selectedElement = null;
+        let canAcceptInput = true; // 移到全局作用域，使其可以被多个函数访问
         
         // 鼠标移动跟踪相关变量
         let lastToolbarHideTime = 0; // 记录工具栏最后一次隐藏的时间
@@ -1898,7 +1913,7 @@
         function initInputFocus() {
             const inputContainer = document.querySelector('.input-container');
             const textArea = document.getElementById('mainInput');
-            let canAcceptInput = true; // 标记是否可以接受输入
+            // 移除局部变量定义，使用全局变量
             
             // 自动调整文本区域高度
             function adjustTextAreaHeight() {
@@ -1949,6 +1964,8 @@
                     // 显示建议面板
                     suggestionPanel.classList.add('visible');
                     
+                    // 自动选中第一个建议（通过MutationObserver在initSuggestionItems中处理）
+                    
                     // 改进标签显示逻辑
                     // 确保有选中元素时，标签内容始终显示
                     if (!inputTagContainer.classList.contains('visible')) {
@@ -1993,9 +2010,73 @@
                     return;
                 }
                 
+                // 处理键盘导航
+                if (suggestionPanel.classList.contains('visible')) {
+                    const suggestionItems = document.querySelectorAll('.suggestion-item');
+                    let activeIndex = -1;
+                    
+                    // 找到当前选中项的索引
+                    suggestionItems.forEach((item, index) => {
+                        if (item.classList.contains('active')) {
+                            activeIndex = index;
+                        }
+                    });
+                    
+                    switch (e.key) {
+                        case 'ArrowDown':
+                            e.preventDefault(); // 防止光标移动
+                            // 向下移动选择
+                            activeIndex = (activeIndex + 1) % suggestionItems.length;
+                            updateActiveSuggestion(suggestionItems, activeIndex);
+                            return; // 阻止后续处理
+                            
+                        case 'ArrowUp':
+                            e.preventDefault(); // 防止光标移动
+                            // 向上移动选择
+                            activeIndex = (activeIndex - 1 + suggestionItems.length) % suggestionItems.length;
+                            updateActiveSuggestion(suggestionItems, activeIndex);
+                            return; // 阻止后续处理
+                            
+                        case 'Tab':
+                            // Tab键选择当前项
+                            if (activeIndex >= 0 && activeIndex < suggestionItems.length) {
+                                e.preventDefault();
+                                suggestionItems[activeIndex].click();
+                                return; // 阻止后续处理
+                            }
+                            break;
+                            
+                        case 'Escape':
+                            // Escape键隐藏建议面板
+                            e.preventDefault();
+                            suggestionPanel.classList.remove('visible');
+                            return; // 阻止后续处理
+                    }
+                }
+                
+                // 处理回车键发送消息
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault(); // 阻止默认的换行行为
                     
+                    // 如果建议面板可见且有选中项，则选择该项
+                    if (suggestionPanel.classList.contains('visible')) {
+                        const suggestionItems = document.querySelectorAll('.suggestion-item');
+                        let activeIndex = -1;
+                        
+                        // 找到当前选中项的索引
+                        suggestionItems.forEach((item, index) => {
+                            if (item.classList.contains('active')) {
+                                activeIndex = index;
+                            }
+                        });
+                        
+                        if (activeIndex >= 0 && activeIndex < suggestionItems.length) {
+                            suggestionItems[activeIndex].click();
+                            return; // 阻止后续处理
+                        }
+                    }
+                    
+                    // 否则发送消息
                     if (textArea.value.trim() !== '') {
                         // 获取输入内容
                         const messageText = textArea.value.trim();
@@ -2042,7 +2123,12 @@
         // 初始化建议项点击事件
         function initSuggestionItems() {
             const suggestionItems = document.querySelectorAll('.suggestion-item');
-            suggestionItems.forEach(item => {
+            
+            // 当前选中的建议项索引
+            let activeIndex = -1;
+            
+            // 为每个建议项添加点击事件
+            suggestionItems.forEach((item, index) => {
                 item.addEventListener('click', () => {
                     const suggestionText = item.textContent.trim();
                     
@@ -2056,8 +2142,58 @@
                     
                     // 清空输入框
                     mainInput.value = '';
+                    
+                    // 隐藏建议面板
+                    suggestionPanel.classList.remove('visible');
+                });
+                
+                // 鼠标进入时设置为活动项
+                item.addEventListener('mouseenter', () => {
+                    // 移除之前的活动项
+                    suggestionItems.forEach(i => i.classList.remove('active'));
+                    // 设置当前项为活动项
+                    item.classList.add('active');
+                    activeIndex = index;
                 });
             });
+            
+            // 当建议面板显示时，自动选中第一个选项
+            function autoSelectFirstSuggestion() {
+                // 监听建议面板的可见性变化
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.target === suggestionPanel && 
+                            suggestionPanel.classList.contains('visible')) {
+                            // 当面板变为可见时，选中第一个选项
+                            activeIndex = 0;
+                            updateActiveSuggestion(suggestionItems, activeIndex);
+                        }
+                    });
+                });
+                
+                // 配置观察器
+                observer.observe(suggestionPanel, { 
+                    attributes: true, 
+                    attributeFilter: ['class'] 
+                });
+            }
+            
+            // 初始化自动选中功能
+            autoSelectFirstSuggestion();
+        }
+        
+        // 更新活动建议项的函数（移到全局作用域）
+        function updateActiveSuggestion(suggestionItems, activeIndex) {
+            // 移除所有活动类
+            suggestionItems.forEach(item => item.classList.remove('active'));
+            
+            // 如果有有效的活动索引，添加活动类
+            if (activeIndex >= 0 && activeIndex < suggestionItems.length) {
+                suggestionItems[activeIndex].classList.add('active');
+                
+                // 确保活动项在视图中
+                suggestionItems[activeIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
         }
 
         // 更新IP人物位置的函数
