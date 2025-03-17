@@ -1216,6 +1216,7 @@
         let dragOffset = { x: 0, y: 0 }; // 鼠标点击位置与工具栏左上角的偏移
         let lastToolbarPosition = null; // 保存工具栏的最后位置
         let hasCustomPosition = false; // 标记工具栏是否有自定义位置
+        let isTextEditMode = false; // 添加文本编辑模式标志
 
         // 初始化页面，给所有可选中元素添加属性
         function initSelectableElements() {
@@ -1866,28 +1867,57 @@
             });
         }
         
-        // 初始化页面
+        // 初始化页面，给所有可选中元素添加属性
         function initPage() {
-            // 初始化菜单
-            initMenu();
+            // 找到所有可选中的元素，添加样式和点击事件
+            const selectableElements = document.querySelectorAll('.article-title, .article-content, .article-image, .feature-card, .feature-title, .feature-content, .feature-icon, h1, h2, h3, .article, button, .cta-button, a');
             
-            // 初始化拖拽
-            initDraggableToolbar();
+            selectableElements.forEach(el => {
+                el.classList.add('selectable');
+                
+                // 添加双击事件处理
+                el.addEventListener('dblclick', (e) => {
+                    // 如果元素是文本类型，直接进入文本编辑模式，不唤出工具栏
+                    if (el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2' || 
+                        el.tagName === 'H3' || el.classList.contains('article-title') || 
+                        el.classList.contains('article-content') || el.classList.contains('feature-title') || 
+                        el.classList.contains('feature-content') || el.tagName === 'BUTTON' || 
+                        el.tagName === 'A' || el.classList.contains('cta-button')) {
+                        
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // 先选中元素
+                        selectElement(el, false);
+                        
+                        // 进入文本编辑模式
+                        isTextEditMode = true;
+                        
+                        // 设置为可编辑
+                        el.contentEditable = true;
+                        el.focus();
+                        
+                        // 选中文本内容
+                        const selection = window.getSelection();
+                        const range = document.createRange();
+                        range.selectNodeContents(el);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        
+                        // 不显示工具栏
+                        hideToolbar();
+                    }
+                });
+                
+                // 阻止默认点击
+                el.addEventListener('click', preventDefaultClick, true);
+            });
             
-            // 初始化输入框
-            initInputFocus();
+            // 初始化其他功能
+            initToolbarDrag();
             
-            // 初始化建议项
-            initSuggestionItems();
-            
-            // 确保inputTagContainer完全隐藏且不占空间
-            inputTagContainer.classList.remove('visible');
-            inputTagContainer.classList.remove('hiding');
-            inputTagContainer.innerHTML = '';
-            inputTagContainer.style.height = '0';
-            inputTagContainer.style.minHeight = '0';
-            inputTagContainer.style.padding = '0';
-            inputWrapper.classList.remove('with-tag');
+            // 隐藏加载动画
+            document.querySelector('.loading-overlay').style.display = 'none';
         }
         
         // 页面加载完成后执行初始化
@@ -1898,6 +1928,29 @@
             document.addEventListener('keydown', (e) => {
                 const mainInput = document.getElementById('mainInput');
                 const rightPanel = document.querySelector('.right-panel');
+                
+                // 如果处于文本编辑模式，不自动聚焦到输入框
+                // 并检查是否按下Enter键退出编辑模式
+                if (isTextEditMode) {
+                    // 处理Enter键退出编辑模式
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault(); // 阻止默认行为（防止换行）
+                        
+                        // 退出编辑模式
+                        if (selectedElement) {
+                            // 取消可编辑状态
+                            selectedElement.contentEditable = false;
+                            isTextEditMode = false;
+                            
+                            // 取消文本选择
+                            window.getSelection().removeAllRanges();
+                            
+                            // 保持元素的选中状态，可以再次使用工具栏
+                            selectedElement.classList.add('selected');
+                        }
+                    }
+                    return; // 在编辑模式下不执行后续的键盘事件处理
+                }
                 
                 // 忽略一些特殊按键如ESC、Tab、Alt、Ctrl等
                 if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'Alt' || 
@@ -2583,6 +2636,27 @@
                     // 执行按钮对应的操作（这里可以添加具体功能）
                     console.log(`执行操作: ${btn.text}`);
                     
+                    // 如果是修改文本按钮，进入文本编辑模式
+                    if (btn.text === '修改文本' && selectedElement) {
+                        // 进入文本编辑模式
+                        isTextEditMode = true;
+                        
+                        // 将选中元素设为可编辑
+                        selectedElement.contentEditable = true;
+                        selectedElement.focus();
+                        
+                        // 选中全部文本并闪动光标
+                        const selection = window.getSelection();
+                        const range = document.createRange();
+                        range.selectNodeContents(selectedElement);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        
+                        // 隐藏工具栏但不取消选中状态
+                        hideToolbar();
+                        return;
+                    }
+                    
                     // 隐藏工具栏
                     hideToolbar();
                     
@@ -2629,6 +2703,49 @@
             inputTagContainer.style.minHeight = '0';
             inputTagContainer.style.padding = '0';
             inputWrapper.classList.remove('with-tag');
+        });
+
+        // 添加键盘事件监听，处理Enter键退出编辑模式
+        document.addEventListener('keydown', (e) => {
+            // 如果当前处于文本编辑模式且按下了Enter键
+            if (isTextEditMode && e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault(); // 阻止默认行为（防止换行）
+                
+                // 退出编辑模式
+                if (selectedElement) {
+                    // 取消可编辑状态
+                    selectedElement.contentEditable = false;
+                    isTextEditMode = false;
+                    
+                    // 取消文本选择
+                    window.getSelection().removeAllRanges();
+                    
+                    // 保持元素的选中状态，可以再次使用工具栏
+                    selectedElement.classList.add('selected');
+                }
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            // 如果处于文本编辑模式，不触发输入框焦点
+            if (isTextEditMode) {
+                return;
+            }
+            
+            // 只有在以下条件下才进行处理：
+            // 1. 输入的是可打印字符或特殊按键如退格键
+            // 2. 当前焦点不在输入框、文本区域或其他表单元素上
+            // 3. 没有按下修饰键 (Alt, Ctrl, Meta)
+            if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+                if (!(document.activeElement === mainInput || 
+                      document.activeElement.tagName === 'INPUT' || 
+                      document.activeElement.tagName === 'TEXTAREA')) {
+                    if (!e.altKey && !e.ctrlKey && !e.metaKey) {
+                        // 聚焦到输入框
+                        mainInput.focus();
+                    }
+                }
+            }
         });
     </script>
 </body>
