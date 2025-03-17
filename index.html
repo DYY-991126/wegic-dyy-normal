@@ -148,6 +148,17 @@
             transition: all 0.2s ease;
         }
 
+        /* 确保顶部栏元素不会显示hover和选中效果 */
+        .top-bar [data-selectable="true"]:hover:not(.selected),
+        .top-bar [data-selectable="true"].selected,
+        .top-bar .element:hover,
+        .top-bar .element.selected {
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+            border-color: transparent !important;
+        }
+
         /* 子元素被选中时父元素的样式 */
         .element.parent-of-selected {
             border: 2px dashed #0071e3;
@@ -940,7 +951,7 @@
 
                 <!-- 中间区域 - URL Status -->
                 <div class="center-section">
-                    <img src="resource/urlStatue.png" alt="URL Status" style="width: 195px; height: 24px;">
+                    <img src="resource/urlStatue.png" alt="URL Status" style="width: 211px; height: 36px;">
                 </div>
 
                 <!-- 右侧区域 -->
@@ -1123,8 +1134,8 @@
 
         // 初始化页面，给所有可选中元素添加属性
         function initSelectableElements() {
-            // 获取所有可能被选中的元素
-            const selectableElements = leftPanel.querySelectorAll('img, .feature-icon, h1, h2, h3, p, .tag, .article-image, .cta-button');
+            // 获取所有可能被选中的元素，排除顶部栏元素
+            const selectableElements = leftPanel.querySelectorAll('.panel-content img, .panel-content .feature-icon, .panel-content h1, .panel-content h2, .panel-content h3, .panel-content p, .panel-content .tag, .panel-content .article-image, .panel-content .cta-button');
             
             selectableElements.forEach(el => {
                 // 标记元素为可选中
@@ -1134,8 +1145,8 @@
                 el.addEventListener('click', preventDefaultClick, true);
             });
             
-            // 对按钮进行特殊处理，防止内部元素被单独选中
-            const buttons = leftPanel.querySelectorAll('button, .cta-button, a');
+            // 对按钮进行特殊处理，防止内部元素被单独选中，排除顶部栏按钮
+            const buttons = leftPanel.querySelectorAll('.panel-content button, .panel-content .cta-button, .panel-content a');
             buttons.forEach(btn => {
                 btn.querySelectorAll('*').forEach(child => {
                     child.setAttribute('data-button-child', 'true');
@@ -1196,6 +1207,9 @@
         function isSelectableElement(element) {
             // 最外层容器不可选中
             if (element === leftPanel) return false;
+            
+            // 顶部栏元素不可选中
+            if (element.closest('.top-bar')) return false;
             
             // 如果是按钮内的子元素，返回按钮元素
             if (element.getAttribute('data-button-child') === 'true') {
