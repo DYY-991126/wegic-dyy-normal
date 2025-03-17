@@ -335,7 +335,7 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            min-height: 104px;
+            min-height: 67px; /* 修改：减少默认最小高度 */
             max-height: 180px;
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 12px;
@@ -343,6 +343,10 @@
             transition: all 0.2s ease;
             overflow: hidden;
             position: relative;
+        }
+        
+        .input-wrapper.with-tag {
+            min-height: 104px; /* 添加：带标签时的最小高度 */
         }
         
         .input-wrapper.focused {
@@ -1137,6 +1141,32 @@
                         }
                     }, 50);
                 });
+                
+                // 删除全局键盘事件监听（任意键自动聚焦输入框的功能）
+                /*
+                document.addEventListener('keydown', (e) => {
+                    // 忽略一些特殊按键如ESC(已经处理)、Tab、Alt、Ctrl等
+                    if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'Alt' || 
+                        e.key === 'Control' || e.key === 'Meta' || e.key === 'Shift') {
+                        return;
+                    }
+                    
+                    // 如果当前焦点不在输入框上且不在右侧面板内
+                    const rightPanel = document.querySelector('.right-panel');
+                    if (document.activeElement !== mainInput && !rightPanel.contains(document.activeElement)) {
+                        e.preventDefault(); // 阻止默认行为
+                        e.stopPropagation(); // 阻止事件冒泡
+                        
+                        // 延迟聚焦输入框，确保当前按键事件完全结束
+                        let currentValue = mainInput.value;
+                        setTimeout(() => {
+                            focusInputWithAnimation();
+                            // 恢复原始值，防止按键字符被输入
+                            mainInput.value = currentValue;
+                        }, 10);
+                    }
+                });
+                */
             });
         }
         
@@ -1181,8 +1211,11 @@
                     return;
                 }
                 
+                // 如果当前输入框有焦点且已有选中元素，不要立即清除标签显示
+                const keepTagVisible = document.activeElement === mainInput && selectedElement;
+                
                 // 选中新元素
-                selectElement(selectableElement);
+                selectElement(selectableElement, keepTagVisible);
                 
                 // 如果输入框已经聚焦，确保标签显示
                 if (document.activeElement === mainInput) {
@@ -1200,8 +1233,8 @@
             }
         }, true); // 捕获阶段处理，确保先于其他事件处理
 
-        // 选中元素函数
-        function selectElement(element) {
+        // 选中元素函数，添加keepTagVisible参数
+        function selectElement(element, keepTagVisible = false) {
             // 检查右侧面板
             const rightPanel = document.querySelector('.right-panel');
             const isFromRightPanel = rightPanel.contains(document.activeElement);
@@ -1244,18 +1277,27 @@
                 suggestionPanel.classList.add('visible');
             }
             
-            // 确保标签容器不包含hiding类，并且先移除visible类，以便重新触发动画
-            inputTagContainer.classList.remove('hiding');
-            inputTagContainer.classList.remove('visible');
-            
-            // 清空标签容器，然后重新生成标签
-            inputTagContainer.innerHTML = '';
-            
-            // 生成输入框标签，并在短暂延迟后显示（确保DOM更新）
-            setTimeout(() => {
+            // 标签处理逻辑：在切换选中元素时保持标签可见
+            if (keepTagVisible && inputTagContainer.classList.contains('visible')) {
+                // 不移除visible类，直接更新内容
+                inputTagContainer.innerHTML = '';
                 generateInputTag();
-                inputTagContainer.classList.add('visible');
-            }, 10);
+            } else {
+                // 常规标签显示逻辑
+                inputTagContainer.classList.remove('hiding');
+                inputTagContainer.classList.remove('visible');
+                inputTagContainer.innerHTML = '';
+                generateInputTag();
+                
+                // 如果输入框是焦点状态，确保标签显示
+                if (document.activeElement === mainInput) {
+                    setTimeout(() => {
+                        if (selectedElement && !inputTagContainer.classList.contains('visible')) {
+                            inputTagContainer.classList.add('visible');
+                        }
+                    }, 50);
+                }
+            }
         }
         
         // 取消选中元素函数
@@ -1291,16 +1333,26 @@
                 // 同时隐藏suggestion面板
                 suggestionPanel.classList.remove('visible');
                 
-                // 立即清空标签容器的内容，然后再添加隐藏动画
-                if (inputTagContainer.classList.contains('visible')) {
-                    inputTagContainer.classList.add('hiding');
-                    inputTagContainer.classList.remove('visible');
-                    
-                    // 动画结束后清空内容
-                    setTimeout(() => {
-                        inputTagContainer.classList.remove('hiding');
-                        inputTagContainer.innerHTML = '';
-                    }, 300);
+                // 标签处理：由于正在切换选中元素时不应隐藏标签
+                // 检查是否是在选中新元素的过程中（如点击事件冒泡阶段）
+                const isClickEvent = event && event.type === 'click';
+                
+                // 只有在非点击事件或强制取消选中时才隐藏标签
+                if (!isClickEvent || forceDeselect) {
+                    // 立即清空标签容器的内容，然后再添加隐藏动画
+                    if (inputTagContainer.classList.contains('visible')) {
+                        inputTagContainer.classList.add('hiding');
+                        inputTagContainer.classList.remove('visible');
+                        
+                        // 移除高度类
+                        inputWrapper.classList.remove('with-tag');
+                        
+                        // 动画结束后清空内容
+                        setTimeout(() => {
+                            inputTagContainer.classList.remove('hiding');
+                            inputTagContainer.innerHTML = '';
+                        }, 300);
+                    }
                 }
             }
         }
@@ -1321,10 +1373,13 @@
                 return;
             }
             
+            // 删除下面的代码，不再自动聚焦输入框
+            /*
             // 其他键的行为保持不变 - 聚焦输入框
             if (e.target !== mainInput && !rightPanel.contains(e.target)) {
                 mainInput.focus();
             }
+            */
         });
 
         // 显示工具栏函数
@@ -1480,8 +1535,8 @@
                     const deltaY = Math.abs(currentPosition.y - startTrackPosition.y);
                     const timePassed = currentTime - lastToolbarHideTime;
                     
-                    // 如果距离工具栏隐藏已超过500ms，且X或Y轴移动超过30px，显示工具栏
-                    if (timePassed > 500 && (deltaX > 30 || deltaY > 30)) {
+                    // 如果距离工具栏隐藏已超过350ms，且X或Y轴移动超过50px，显示工具栏
+                    if (timePassed > 350 && (deltaX > 30 || deltaY > 30)) {
                         const rect = selectedElement.getBoundingClientRect();
                         // 这里是二次出现（用户移入左侧区域触发）
                         showToolbar(rect, true);
@@ -1559,7 +1614,7 @@
                     }
                     
                     leftPanelLeaveTimer = null;
-                }, 500);
+                }, 100);
             }
         });
 
@@ -1698,11 +1753,39 @@
             initToolbarDrag();
             initInputFocus();
             initSuggestionItems();
+            initGlobalKeyboardListener(); // 添加全局键盘监听初始化
             
             // 初始化工具栏标题和分隔线引用
             window.toolbarTitle = document.getElementById('toolbarDragHandle');
             window.toolbarDivider = toolbar.querySelector('.toolbar-divider');
         });
+        
+        // 初始化全局键盘事件监听
+        function initGlobalKeyboardListener() {
+            document.addEventListener('keydown', (e) => {
+                const mainInput = document.getElementById('mainInput');
+                const rightPanel = document.querySelector('.right-panel');
+                
+                // 忽略一些特殊按键如ESC、Tab、Alt、Ctrl等
+                if (e.key === 'Escape' || e.key === 'Tab' || e.key === 'Alt' || 
+                    e.key === 'Control' || e.key === 'Meta' || e.key === 'Shift') {
+                    return;
+                }
+                
+                // 如果当前焦点不在输入框上且不在右侧面板内的其他输入元素中
+                if (document.activeElement !== mainInput && 
+                    !(rightPanel.contains(document.activeElement) && 
+                      (document.activeElement.tagName === 'INPUT' || 
+                       document.activeElement.tagName === 'TEXTAREA'))) {
+                    
+                    e.preventDefault(); // 阻止默认行为
+                    e.stopPropagation(); // 阻止事件冒泡
+                    
+                    // 聚焦输入框，但不传递当前按键
+                    focusInputWithAnimation();
+                }
+            });
+        }
         
         // 添加消息到对话记录
         function addMessage(text, type) {
@@ -1805,6 +1888,9 @@
             // 显示标签容器
             inputTagContainer.classList.add('visible');
             
+            // 添加高度类
+            inputWrapper.classList.add('with-tag');
+            
             return true; // 返回成功标志
         }
         
@@ -1812,6 +1898,7 @@
         function initInputFocus() {
             const inputContainer = document.querySelector('.input-container');
             const textArea = document.getElementById('mainInput');
+            let canAcceptInput = true; // 标记是否可以接受输入
             
             // 自动调整文本区域高度
             function adjustTextAreaHeight() {
@@ -1821,19 +1908,60 @@
             }
             
             // 监听输入事件调整高度
-            textArea.addEventListener('input', adjustTextAreaHeight);
+            textArea.addEventListener('input', (e) => {
+                // 如果不能接受输入，阻止输入事件
+                if (!canAcceptInput) {
+                    e.preventDefault();
+                    textArea.value = ''; // 清空输入
+                    return;
+                }
+                
+                adjustTextAreaHeight();
+                
+                // 根据输入内容显示或隐藏建议面板
+                if (selectedElement) {
+                    if (textArea.value.trim() !== '') {
+                        // 当有内容时隐藏建议面板
+                        suggestionPanel.classList.remove('visible');
+                    } else {
+                        // 当内容为空时且有选中元素，显示建议面板
+                        suggestionPanel.classList.add('visible');
+                    }
+                }
+            });
             
             // 输入框获得焦点
             textArea.addEventListener('focus', () => {
                 inputWrapper.classList.add('focused');
                 
+                // 设置不能接受输入
+                canAcceptInput = false;
+                
+                // 200ms后才能接受输入
+                setTimeout(() => {
+                    canAcceptInput = true;
+                }, 200);
+                
+                // 隐藏工具栏
+                hideToolbar();
+                
                 if (selectedElement) {
                     // 显示建议面板
                     suggestionPanel.classList.add('visible');
-                    // 生成标签（如果还没有）
+                    
+                    // 改进标签显示逻辑
+                    // 确保有选中元素时，标签内容始终显示
                     if (!inputTagContainer.classList.contains('visible')) {
-                        generateInputTag();
+                        // 先检查标签内容是否存在，不存在则重新生成
+                        if (inputTagContainer.children.length === 0) {
+                            generateInputTag();
+                        }
+                        // 添加显示类
                         inputTagContainer.classList.add('visible');
+                        inputTagContainer.classList.remove('hiding');
+                        
+                        // 添加高度类
+                        inputWrapper.classList.add('with-tag');
                     }
                 }
             });
@@ -1845,6 +1973,11 @@
                 // 只有在输入框失焦时才隐藏建议面板
                 suggestionPanel.classList.remove('visible');
                 
+                // 如果没有选中元素，确保移除高度类
+                if (!selectedElement) {
+                    inputWrapper.classList.remove('with-tag');
+                }
+                
                 // 如果有选中的元素，自动重新显示工具栏
                 if (selectedElement) {
                     const rect = selectedElement.getBoundingClientRect();
@@ -1854,6 +1987,12 @@
             
             // 监听回车键发送消息
             textArea.addEventListener('keydown', (e) => {
+                // 如果不能接受输入，阻止所有键盘事件
+                if (!canAcceptInput) {
+                    e.preventDefault();
+                    return;
+                }
+                
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault(); // 阻止默认的换行行为
                     
