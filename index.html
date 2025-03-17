@@ -124,25 +124,29 @@
         .element:hover {
             background-color: #f8f8f8;
             transform: translateY(-1px);
+            border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .element.selected {
-            border: 3px solid #0071e3;
+            border: 3px solid #07DA9B;
+            border-radius: 12px;
             background-color: rgba(0, 113, 227, 0.05);
             box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
         }
 
         /* 添加选中子元素的样式 */
         [data-selectable="true"].selected {
-            outline: 3px solid #0071e3;
+            outline: 3px solid #07DA9B;
+            border-radius: 12px;
             background-color: rgba(0, 113, 227, 0.05);
             box-shadow: 0 2px 8px rgba(0, 113, 227, 0.2);
         }
 
         /* 添加 hover 元素的框体 UI 样式 */
         [data-selectable="true"]:hover:not(.selected) {
-            outline: 2px solid #0071e3;
+            outline: 2px solid #07DA9B;
+            border-radius: 12px;
             outline-offset: 2px;
             box-shadow: 0 0 4px rgba(0, 113, 227, 0.15);
             transition: all 0.2s ease;
@@ -157,6 +161,42 @@
             box-shadow: none !important;
             background-color: transparent !important;
             border-color: transparent !important;
+        }
+        
+        /* 确保替换图片面板不会显示hover和选中效果 */
+        .replace-image-panel,
+        .replace-image-panel *,
+        .replace-image-panel [data-selectable="true"]:hover:not(.selected),
+        .replace-image-panel [data-selectable="true"].selected {
+            outline: none !important;
+            box-shadow: none !important;
+            background-color: inherit !important;
+            border-color: inherit !important;
+        }
+        
+        /* 恢复替换图片面板中需要的原始样式 */
+        .replace-image-panel .segment-option.active {
+            background-color: #FFFFFF !important;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .replace-image-panel .local-upload-btn {
+            background: #000 !important;
+            box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.20),
+                        0px 0px 0px 1px #000,
+                        0px 20px 20px 0px rgba(0, 0, 0, 0.04) inset,
+                        0px -2px 1px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 4px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px -1px 1px 0px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset !important;
+        }
+        
+        .replace-image-panel .local-upload-btn:hover {
+            background: rgba(0, 0, 0, 0.9) !important;
+        }
+        
+        .replace-image-close:hover {
+            background-color: rgba(0, 0, 0, 0.05) !important;
         }
 
         /* 子元素被选中时父元素的样式 */
@@ -246,6 +286,119 @@
             filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.15));
             transform-origin: center center;
             animation: appearAnimation 0.3s ease-out;
+        }
+        
+        /* 替换图片面板样式 */
+        .replace-image-panel {
+            position: fixed;
+            width: 308px;
+            height: 568px;
+            background-color: #fff !important;
+            border-radius: 12px;
+            box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.32), 0px 0px 8px 0px rgba(0, 0, 0, 0.08) !important;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            padding: 16px;
+            gap: 12px;
+        }
+        
+        .replace-image-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .replace-image-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333333;
+        }
+        
+        .replace-image-close {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .replace-image-close:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .replace-image-segment {
+            display: flex;
+            height: 36px;
+            border-radius: 8px;
+            background-color: #F2F2F7;
+            padding: 2px;
+        }
+        
+        .segment-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #8E8E93;
+        }
+        
+        .segment-option.active {
+            background-color: #FFFFFF;
+            color: #000000;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-placeholder {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            border-radius: 8px;
+            background-color: #F9F9F9;
+        }
+        
+        .upload-icon {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .upload-text {
+            font-size: 14px;
+            color: #8E8E93;
+        }
+        
+        .local-upload-btn {
+            width: 100%;
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: none;
+            border-radius: 10px;
+            background: #000;
+            box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.20),
+                        0px 0px 0px 1px #000,
+                        0px 20px 20px 0px rgba(0, 0, 0, 0.04) inset,
+                        0px -2px 1px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 4px 1px rgba(255, 255, 255, 0.20) inset,
+                        0px -1px 1px 0px rgba(255, 255, 255, 0.20) inset,
+                        0px 1px 0px 0px rgba(255, 255, 255, 0.20) inset;
+            font-size: 16px;
+            color: #FFF;
+            cursor: pointer;
+            margin-top: auto;
+        }
+        
+        .local-upload-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
         }
         
         .ip-character-container img {
@@ -1143,6 +1296,29 @@
                 <div class="ip-character-container" id="ipCharacterContainer">
                     <img src="resource/IP人物.png" alt="IP角色" id="ipCharacter">
                 </div>
+                
+                <!-- 替换图片面板 -->
+                <div class="replace-image-panel" id="replaceImagePanel">
+                    <div class="replace-image-header">
+                        <div class="replace-image-title">替换图片</div>
+                        <div class="replace-image-close" id="replaceImageClose">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12.5 3.5L3.5 12.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M3.5 3.5L12.5 12.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="replace-image-segment">
+                        <div class="segment-option active" data-option="upload">Upload</div>
+                        <div class="segment-option" data-option="online">Online</div>
+                        <div class="segment-option" data-option="gallery">Gallery</div>
+                    </div>
+                    <div class="upload-placeholder">
+                        <img src="resource/上传插图.png" alt="上传图片" class="upload-icon">
+                        <div class="upload-text">PNG, JPG (Max 5MB)</div>
+                    </div>
+                    <button class="local-upload-btn" id="localUploadBtn">Local upload</button>
+                </div>
             </div>
         </div>
         <div class="right-panel">
@@ -1224,6 +1400,11 @@
             const selectableElements = leftPanel.querySelectorAll('.panel-content img, .panel-content .feature-icon, .panel-content h1, .panel-content h2, .panel-content h3, .panel-content p, .panel-content .tag, .panel-content .article-image, .panel-content .cta-button');
             
             selectableElements.forEach(el => {
+                // 排除替换图片面板及其子元素
+                if (el.closest('.replace-image-panel')) {
+                    return;
+                }
+                
                 // 标记元素为可选中
                 el.setAttribute('data-selectable', 'true');
                 
@@ -1234,6 +1415,11 @@
             // 对按钮进行特殊处理，防止内部元素被单独选中，排除顶部栏按钮
             const buttons = leftPanel.querySelectorAll('.panel-content button, .panel-content .cta-button, .panel-content a');
             buttons.forEach(btn => {
+                // 排除替换图片面板内的按钮
+                if (btn.closest('.replace-image-panel')) {
+                    return;
+                }
+                
                 btn.querySelectorAll('*').forEach(child => {
                     child.setAttribute('data-button-child', 'true');
                 });
@@ -1296,6 +1482,9 @@
             
             // 顶部栏元素不可选中
             if (element.closest('.top-bar')) return false;
+            
+            // 替换图片面板及其子元素不可选中
+            if (element.closest('.replace-image-panel')) return false;
             
             // 如果是按钮内的子元素，返回按钮元素
             if (element.getAttribute('data-button-child') === 'true') {
@@ -1873,12 +2062,34 @@
             const selectableElements = document.querySelectorAll('.article-title, .article-content, .article-image, .feature-card, .feature-title, .feature-content, .feature-icon, h1, h2, h3, .article, button, .cta-button, a');
             
             selectableElements.forEach(el => {
+                // 排除替换图片面板及其子元素
+                if (el.closest('.replace-image-panel')) {
+                    return;
+                }
+                
                 el.classList.add('selectable');
                 
                 // 添加双击事件处理
                 el.addEventListener('dblclick', (e) => {
+                    // 如果元素是图片，调出系统上传功能
+                    if (el.tagName === 'IMG' || el.classList.contains('article-image')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // 先选中元素
+                        selectElement(el, false);
+                        
+                        // 模拟点击隐藏的文件输入框
+                        const fileInput = document.getElementById('hiddenFileInput');
+                        if (fileInput) {
+                            fileInput.click();
+                        }
+                        
+                        // 不显示工具栏
+                        hideToolbar();
+                    }
                     // 如果元素是文本类型，直接进入文本编辑模式，不唤出工具栏
-                    if (el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2' || 
+                    else if (el.tagName === 'P' || el.tagName === 'H1' || el.tagName === 'H2' || 
                         el.tagName === 'H3' || el.classList.contains('article-title') || 
                         el.classList.contains('article-content') || el.classList.contains('feature-title') || 
                         el.classList.contains('feature-content') || el.tagName === 'BUTTON' || 
@@ -2623,44 +2834,45 @@
             const title = toolbar.querySelector('.toolbar-title');
             const divider = toolbar.querySelector('.toolbar-divider');
             
+            // 创建并添加按钮
             buttons.forEach(btn => {
                 const button = document.createElement('button');
-                if (btn.class) button.className = btn.class;
                 button.innerHTML = `<span class="icon">${btn.icon}</span> ${btn.text}`;
+                if (btn.class) button.classList.add(btn.class);
                 
-                // 添加点击事件，点击后隐藏工具栏
-                button.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // 执行按钮对应的操作（这里可以添加具体功能）
-                    console.log(`执行操作: ${btn.text}`);
-                    
-                    // 如果是修改文本按钮，进入文本编辑模式
-                    if (btn.text === '修改文本' && selectedElement) {
-                        // 进入文本编辑模式
-                        isTextEditMode = true;
-                        
-                        // 将选中元素设为可编辑
-                        selectedElement.contentEditable = true;
-                        selectedElement.focus();
-                        
-                        // 选中全部文本并闪动光标
-                        const selection = window.getSelection();
-                        const range = document.createRange();
-                        range.selectNodeContents(selectedElement);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                        
-                        // 隐藏工具栏但不取消选中状态
-                        hideToolbar();
-                        return;
+                // 添加点击事件
+                button.addEventListener('click', () => {
+                    // 根据按钮文本执行不同操作
+                    if (btn.text === '替换图片') {
+                        showReplaceImagePanel();
+                    } else if (btn.text === '修改文本') {
+                        if (selectedElement) {
+                            // 进入文本编辑模式
+                            isTextEditMode = true;
+                            selectedElement.contentEditable = true;
+                            selectedElement.focus();
+                            
+                            // 选中文本内容
+                            const selection = window.getSelection();
+                            const range = document.createRange();
+                            range.selectNodeContents(selectedElement);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            
+                            // 隐藏工具栏
+                            hideToolbar();
+                        }
+                    } else if (btn.text === '添加链接') {
+                        // 添加链接功能 (可以在这里实现)
+                    } else if (btn.text === '替换图标') {
+                        // 替换图标功能 (可以在这里实现)
+                    } else if (btn.text === '生成&优化') {
+                        // 生成&优化功能 (可以在这里实现)
+                    } else if (btn.text === '裁剪图片') {
+                        // 裁剪图片功能 (可以在这里实现)
                     }
                     
-                    // 隐藏工具栏
-                    hideToolbar();
-                    
-                    // 如果是删除按钮，还需要取消选中元素
+                    // 处理删除按钮
                     if (btn.class === 'delete-button') {
                         deselectElement(true, true);
                     }
@@ -2690,6 +2902,7 @@
             initInputFocus();
             initSuggestionItems();
             initGlobalKeyboardListener(); // 添加全局键盘监听初始化
+            initUploadFiles(); // 初始化上传文件功能
             
             // 初始化工具栏标题和分隔线引用
             window.toolbarTitle = document.getElementById('toolbarDragHandle');
@@ -2747,6 +2960,277 @@
                 }
             }
         });
+
+        // 在页面加载完成后执行初始化
+        window.addEventListener('DOMContentLoaded', initPage);
+        
+        // 初始化全局键盘事件监听
+        window.addEventListener('keydown', handleKeyDown);
+        
+        // 创建隐藏的文件输入框
+        function createHiddenFileInput() {
+            // 检查是否已存在隐藏的文件输入框
+            let fileInput = document.getElementById('hiddenFileInput');
+            if (fileInput) {
+                return;
+            }
+            
+            // 创建隐藏的文件输入框
+            fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.id = 'hiddenFileInput';
+            fileInput.accept = 'image/png, image/jpeg';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            // 添加文件选择事件监听
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    // 检查文件大小是否超过5MB
+                    if (this.files[0].size > 5 * 1024 * 1024) {
+                        alert('图片大小不能超过5MB');
+                        return;
+                    }
+                    
+                    // 获取文件URL
+                    const fileUrl = URL.createObjectURL(this.files[0]);
+                    
+                    // 如果当前有选中的图片元素，替换其src
+                    if (selectedElement && (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image'))) {
+                        if (selectedElement.tagName === 'IMG') {
+                            selectedElement.src = fileUrl;
+                        } else {
+                            // 如果是容器元素，查找内部的img标签
+                            const img = selectedElement.querySelector('img');
+                            if (img) {
+                                img.src = fileUrl;
+                            }
+                        }
+                    }
+                    
+                    // 重置文件输入框，以便可以选择相同的文件
+                    this.value = '';
+                    
+                    // 隐藏替换图片面板
+                    hideReplaceImagePanel();
+                }
+            });
+        }
+        
+        // 触发文件上传功能
+        function triggerFileUpload(element) {
+            const fileInput = document.getElementById('hiddenFileInput');
+            if (fileInput) {
+                fileInput.click();
+            }
+        }
+        
+        // 初始化替换图片面板
+        function initReplaceImagePanel() {
+            const replaceImagePanel = document.getElementById('replaceImagePanel');
+            const replaceImageClose = document.getElementById('replaceImageClose');
+            const segmentOptions = document.querySelectorAll('.segment-option');
+            const localUploadBtn = document.getElementById('localUploadBtn');
+            
+            // 关闭按钮点击事件
+            replaceImageClose.addEventListener('click', hideReplaceImagePanel);
+            
+            // 分段控制点击事件
+            segmentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除所有选项的active类
+                    segmentOptions.forEach(opt => opt.classList.remove('active'));
+                    // 为当前选项添加active类
+                    this.classList.add('active');
+                    
+                    // 这里只实现Upload选项，其他选项可以根据需要扩展
+                });
+            });
+            
+            // Local upload按钮点击事件
+            localUploadBtn.addEventListener('click', function() {
+                if (selectedElement && (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image'))) {
+                    triggerFileUpload(selectedElement);
+                }
+            });
+        }
+        
+        // 显示替换图片面板
+        function showReplaceImagePanel() {
+            const replaceImagePanel = document.getElementById('replaceImagePanel');
+            if (!replaceImagePanel) return;
+            
+            // 设置面板位置 - 居中显示
+            const panelWidth = 308;
+            const panelHeight = 568;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            const left = (windowWidth - panelWidth) / 2;
+            const top = (windowHeight - panelHeight) / 2;
+            
+            replaceImagePanel.style.left = left + 'px';
+            replaceImagePanel.style.top = top + 'px';
+            
+            // 显示面板
+            replaceImagePanel.style.display = 'flex';
+            
+            // 隐藏工具栏
+            hideToolbar();
+        }
+        
+        // 隐藏替换图片面板
+        function hideReplaceImagePanel() {
+            const replaceImagePanel = document.getElementById('replaceImagePanel');
+            if (replaceImagePanel) {
+                replaceImagePanel.style.display = 'none';
+            }
+        }
+
+        // 处理全局键盘事件
+        function handleKeyDown(e) {
+            // 如果处于文本编辑模式，不触发输入框焦点
+            if (isTextEditMode) {
+                // 处理Enter键退出编辑模式
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); // 阻止默认行为（防止换行）
+                    
+                    // 退出编辑模式
+                    if (selectedElement) {
+                        // 取消可编辑状态
+                        selectedElement.contentEditable = false;
+                        isTextEditMode = false;
+                        
+                        // 取消文本选择
+                        window.getSelection().removeAllRanges();
+                        
+                        // 保持元素的选中状态，可以再次使用工具栏
+                        selectedElement.classList.add('selected');
+                    }
+                }
+                return;
+            }
+            
+            // 如果按ESC键且焦点不在右侧面板内，则取消选中
+            if (e.key === 'Escape') {
+                const rightPanel = document.querySelector('.right-panel');
+                if (!rightPanel.contains(document.activeElement)) {
+                    // 取消选中但不自动隐藏工具栏，并强制取消选中
+                    if (selectedElement) {
+                        deselectElement(false, true);
+                        // 按ESC键同时重置工具栏位置
+                        resetToolbarPosition();
+                    }
+                }
+                return;
+            }
+            
+            // 忽略一些特殊按键如Tab、Alt、Ctrl等
+            if (e.key === 'Tab' || e.key === 'Alt' || 
+                e.key === 'Control' || e.key === 'Meta' || e.key === 'Shift') {
+                return;
+            }
+            
+            // 只有在以下条件下才自动聚焦到输入框：
+            // 1. 输入的是可打印字符或特殊按键如退格键
+            // 2. 当前焦点不在输入框、文本区域或其他表单元素上
+            // 3. 没有按下修饰键 (Alt, Ctrl, Meta)
+            if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+                if (!(document.activeElement === mainInput || 
+                      document.activeElement.tagName === 'INPUT' || 
+                      document.activeElement.tagName === 'TEXTAREA')) {
+                    if (!e.altKey && !e.ctrlKey && !e.metaKey) {
+                        // 聚焦到输入框
+                        mainInput.focus();
+                    }
+                }
+            }
+        }
+
+        // 初始化上传文件功能
+        function initUploadFiles() {
+            // 创建隐藏的文件输入框
+            let fileInput = document.getElementById('hiddenFileInput');
+            if (!fileInput) {
+                fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.id = 'hiddenFileInput';
+                fileInput.accept = 'image/png, image/jpeg';
+                fileInput.style.display = 'none';
+                document.body.appendChild(fileInput);
+            }
+            
+            // 添加文件选择事件监听
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    // 检查文件大小是否超过5MB
+                    if (this.files[0].size > 5 * 1024 * 1024) {
+                        alert('图片大小不能超过5MB');
+                        return;
+                    }
+                    
+                    // 获取文件URL
+                    const fileUrl = URL.createObjectURL(this.files[0]);
+                    
+                    // 如果当前有选中的图片元素，替换其src
+                    if (selectedElement && (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image'))) {
+                        if (selectedElement.tagName === 'IMG') {
+                            selectedElement.src = fileUrl;
+                        } else {
+                            // 如果是容器元素，查找内部的img标签
+                            const img = selectedElement.querySelector('img');
+                            if (img) {
+                                img.src = fileUrl;
+                            }
+                        }
+                    }
+                    
+                    // 重置文件输入框，以便可以选择相同的文件
+                    this.value = '';
+                    
+                    // 隐藏替换图片面板
+                    hideReplaceImagePanel();
+                }
+            });
+            
+            // 初始化替换图片面板
+            const replaceImagePanel = document.getElementById('replaceImagePanel');
+            const replaceImageClose = document.getElementById('replaceImageClose');
+            const segmentOptions = document.querySelectorAll('.segment-option');
+            const localUploadBtn = document.getElementById('localUploadBtn');
+            
+            // 关闭按钮点击事件
+            if (replaceImageClose) {
+                replaceImageClose.addEventListener('click', () => {
+                    if (replaceImagePanel) {
+                        replaceImagePanel.style.display = 'none';
+                    }
+                });
+            }
+            
+            // 分段控制点击事件
+            segmentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除所有选项的active类
+                    segmentOptions.forEach(opt => opt.classList.remove('active'));
+                    // 为当前选项添加active类
+                    this.classList.add('active');
+                    
+                    // 这里只实现Upload选项，其他选项可以根据需要扩展
+                });
+            });
+            
+            // Local upload按钮点击事件
+            if (localUploadBtn) {
+                localUploadBtn.addEventListener('click', function() {
+                    if (selectedElement && (selectedElement.tagName === 'IMG' || selectedElement.classList.contains('article-image'))) {
+                        if (fileInput) {
+                            fileInput.click();
+                        }
+                    }
+                });
+            }
+        }
     </script>
 </body>
 </html> 
