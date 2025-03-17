@@ -346,8 +346,8 @@
             display: flex;
             flex-direction: column;
             width: 100%;
-            min-height: 67px; /* 修改：减少默认最小高度 */
-            max-height: 180px;
+            min-height: 67px; /* 保持默认最小高度 */
+            max-height: none; /* 移除最大高度限制，允许随内容自动扩展 */
             border: 1px solid rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             background-color: #FFF;
@@ -357,7 +357,8 @@
         }
         
         .input-wrapper.with-tag {
-            min-height: 104px; /* 添加：带标签时的最小高度 */
+            height: auto; /* 改为auto，随内容自动调整高度 */
+            min-height: 104px; /* 保持最小高度 */
         }
         
         .input-wrapper.focused {
@@ -393,25 +394,35 @@
         }
         
         .input-tag-container {
-            display: flex; /* 始终使用 flex 布局 */
-            align-items: center;
-            justify-content: space-between;
-            min-height: 37px;
+            display: flex; 
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            min-height: 0; /* 修改为0确保不占空间 */
             background-color: #000;
             border-radius: 12px 12px 0 0;
-            padding: 0 12px;
+            padding: 0; /* 默认无内边距 */
             position: relative;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             opacity: 0;
             height: 0;
             overflow: hidden;
-            transition: opacity 0.3s ease, height 0.3s ease;
+            transition: opacity 0.3s ease, height 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
         }
         
         .input-tag-container.visible {
             opacity: 1;
-            height: 37px;
+            height: auto; /* 确保高度随内容变化 */
+            max-height: none; /* 取消最大高度限制，确保内容完全显示 */
+            min-height: 40px; /* 仅在可见时设置最小高度 */
+            padding: 0 12px; /* 仅在可见时添加内边距 */
             animation: tagAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .tag-top-container {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            width: 100%;
         }
         
         .input-tag-container.hiding {
@@ -454,12 +465,82 @@
             transform: scale(1.1);
         }
         
+        /* 为标签容器内的建议增加样式 */
+        .suggestion-container {
+            display: none; /* 默认隐藏，只在输入框聚焦时显示 */
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+            padding: 12px;
+            gap: 4px;
+            overflow: visible; /* 修改为visible，确保不会隐藏内容 */
+            max-height: none; /* 移除高度限制 */
+            margin-top: 6px; /* 与顶部内容保持间距 */
+        }
+        
+        /* 输入框聚焦时显示建议容器 */
+        .input-wrapper.focused .suggestion-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .suggestion-slider {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            overflow: visible; /* 修改为visible，确保不会隐藏内容 */
+            width: 100%;
+            max-height: none; /* 移除高度限制 */
+        }
+
+        .suggestion-arrow {
+            color: #fff;
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .suggestion-option {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .suggestion-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .suggestion-option:hover,
+        .suggestion-option.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .suggestion-option.active {
+            border-left: 3px solid #fff;
+        }
+        
+        .suggestion-option::after {
+            content: '→';
+            position: absolute;
+            right: 12px;
+            color: #ffffff;
+            font-size: 16px;
+        }
+        
         .input-content-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
-            max-height: 120px;
+            min-height: 67px; /* 设置最小高度，确保不会被压缩 */
+            max-height: 120px; /* 保持最大高度限制 */
             border-radius: 0 0 12px 12px;
         }
         
@@ -1359,8 +1440,8 @@
                 // 始终隐藏工具栏，无论hideToolbarFlag参数如何
                 hideToolbar();
                 
-                // 同时隐藏suggestion面板
-                suggestionPanel.classList.remove('visible');
+                // 不再需要单独隐藏建议面板，因为已集成到标签中
+                // suggestionPanel.classList.remove('visible');
                 
                 // 标签处理：由于正在切换选中元素时不应隐藏标签
                 // 检查是否是在选中新元素的过程中（如点击事件冒泡阶段）
@@ -1375,6 +1456,11 @@
                         
                         // 移除高度类
                         inputWrapper.classList.remove('with-tag');
+                        
+                        // 立即设置为0高度，确保不占用空间
+                        inputTagContainer.style.height = '0';
+                        inputTagContainer.style.minHeight = '0';
+                        inputTagContainer.style.padding = '0';
                         
                         // 动画结束后清空内容
                         setTimeout(() => {
@@ -1776,18 +1862,32 @@
             });
         }
         
-        // 在页面加载完成后初始化所有功能
-        document.addEventListener('DOMContentLoaded', () => {
-            initSelectableElements();
-            initToolbarDrag();
-            initInputFocus();
-            initSuggestionItems();
-            initGlobalKeyboardListener(); // 添加全局键盘监听初始化
+        // 初始化页面
+        function initPage() {
+            // 初始化菜单
+            initMenu();
             
-            // 初始化工具栏标题和分隔线引用
-            window.toolbarTitle = document.getElementById('toolbarDragHandle');
-            window.toolbarDivider = toolbar.querySelector('.toolbar-divider');
-        });
+            // 初始化拖拽
+            initDraggableToolbar();
+            
+            // 初始化输入框
+            initInputFocus();
+            
+            // 初始化建议项
+            initSuggestionItems();
+            
+            // 确保inputTagContainer完全隐藏且不占空间
+            inputTagContainer.classList.remove('visible');
+            inputTagContainer.classList.remove('hiding');
+            inputTagContainer.innerHTML = '';
+            inputTagContainer.style.height = '0';
+            inputTagContainer.style.minHeight = '0';
+            inputTagContainer.style.padding = '0';
+            inputWrapper.classList.remove('with-tag');
+        }
+        
+        // 页面加载完成后执行初始化
+        window.addEventListener('DOMContentLoaded', initPage);
         
         // 初始化全局键盘事件监听
         function initGlobalKeyboardListener() {
@@ -1849,7 +1949,17 @@
         
         // 生成输入框标签
         function generateInputTag() {
-            if (!selectedElement) return;
+            if (!selectedElement) {
+                // 确保标签容器完全隐藏且不占用空间
+                inputTagContainer.classList.remove('visible');
+                inputTagContainer.classList.remove('hiding');
+                inputTagContainer.innerHTML = '';
+                inputTagContainer.style.height = '0';
+                inputTagContainer.style.minHeight = '0';
+                inputTagContainer.style.padding = '0';
+                inputWrapper.classList.remove('with-tag');
+                return false;
+            }
             
             // 清空标签容器
             inputTagContainer.innerHTML = '';
@@ -1893,6 +2003,85 @@
             tagElement.className = 'input-tag';
             tagElement.innerHTML = `<span class="icon">${icon}</span> ${content}`;
             
+            // 创建建议容器
+            const suggestionContainer = document.createElement('div');
+            suggestionContainer.className = 'suggestion-container';
+            
+            // 添加标题
+            const suggestionTitle = document.createElement('div');
+            suggestionTitle.className = 'suggestion-title';
+            suggestionTitle.textContent = 'Suggestion';
+            suggestionTitle.style.color = '#ffffff7d';
+            suggestionTitle.style.fontSize = '14px';
+            suggestionTitle.style.marginBottom = '8px';
+            suggestionContainer.appendChild(suggestionTitle);
+            
+            // 创建建议滑块容器
+            const suggestionSlider = document.createElement('div');
+            suggestionSlider.className = 'suggestion-slider';
+            
+            // 添加建议选项
+            const suggestions = [
+                '添加图片悬停效果，如轻微放大或阴影',
+                '调整图片亮度或对比度以突出主体',
+                '给图片添加细边框或内部阴影'
+            ];
+            
+            // 根据选中元素类型提供不同的建议
+            let elementSuggestions = suggestions;
+            
+            if (content === 'Text' || content === 'Title') {
+                elementSuggestions = [
+                    '增加文本大小',
+                    '改变文本颜色',
+                    '调整行间距'
+                ];
+            } else if (content === 'Button') {
+                elementSuggestions = [
+                    '改变按钮颜色',
+                    '添加悬停动画',
+                    '调整按钮圆角'
+                ];
+            } else if (content === 'Card') {
+                elementSuggestions = [
+                    '添加卡片阴影',
+                    '改变卡片背景色',
+                    '为卡片添加边框'
+                ];
+            }
+            
+            // 添加建议到滑块
+            elementSuggestions.forEach((text, index) => {
+                const option = document.createElement('div');
+                option.className = 'suggestion-option';
+                option.textContent = text;
+                
+                // 第一个选项默认为活动状态
+                if (index === 0) {
+                    option.classList.add('active');
+                }
+                
+                option.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // 处理建议点击事件
+                    addMessage(text, 'user');
+                    
+                    // 模拟AI回复
+                    setTimeout(() => {
+                        addMessage('收到您的建议请求，我将根据"' + text + '"优化内容...', 'ai');
+                    }, 1000);
+                    
+                    // 清空输入框
+                    mainInput.value = '';
+                });
+                suggestionSlider.appendChild(option);
+            });
+            
+            // 将滑块添加到建议容器
+            suggestionContainer.appendChild(suggestionSlider);
+            
             // 创建右侧关闭按钮
             const closeButton = document.createElement('button');
             closeButton.className = 'input-tag-close';
@@ -1910,15 +2099,39 @@
                 }, 10);
             });
             
-            // 添加到标签容器
-            inputTagContainer.appendChild(tagElement);
-            inputTagContainer.appendChild(closeButton);
+            // 创建顶部容器用于放置标签和关闭按钮
+            const topContainer = document.createElement('div');
+            topContainer.className = 'tag-top-container';
+            topContainer.style.display = 'flex';
+            topContainer.style.alignItems = 'center';
+            topContainer.style.justifyContent = 'space-between';
+            
+            // 将标签和关闭按钮添加到顶部容器
+            topContainer.appendChild(tagElement);
+            topContainer.appendChild(closeButton);
+            
+            // 添加到标签容器 - 先添加顶部容器，再添加建议容器
+            inputTagContainer.appendChild(topContainer);
+            inputTagContainer.appendChild(suggestionContainer);
             
             // 显示标签容器
             inputTagContainer.classList.add('visible');
             
+            // 确保标签容器高度正确
+            setTimeout(() => {
+                // 设置为auto以确保显示所有内容
+                inputTagContainer.style.height = 'auto';
+                
+                // 确保输入区域不被压缩
+                const inputContentContainer = document.querySelector('.input-content-container');
+                if (inputContentContainer) {
+                    inputContentContainer.style.minHeight = '67px';
+                }
+            }, 0);
+            
             // 添加高度类
             inputWrapper.classList.add('with-tag');
+            inputWrapper.style.height = 'auto';
             
             return true; // 返回成功标志
         }
@@ -1934,6 +2147,13 @@
                 textArea.style.height = 'auto';
                 const newHeight = Math.min(textArea.scrollHeight, 120); // 最大高度限制
                 textArea.style.height = newHeight + 'px';
+                
+                // 确保input-content-container保持合适的高度
+                const inputContentContainer = document.querySelector('.input-content-container');
+                if (inputContentContainer) {
+                    inputContentContainer.style.height = 'auto';
+                    inputContentContainer.style.minHeight = '67px';
+                }
             }
             
             // 监听输入事件调整高度
@@ -1949,12 +2169,14 @@
                 
                 // 根据输入内容显示或隐藏建议面板
                 if (selectedElement) {
-                    if (textArea.value.trim() !== '') {
-                        // 当有内容时隐藏建议面板
-                        suggestionPanel.classList.remove('visible');
-                    } else {
-                        // 当内容为空时且有选中元素，显示建议面板
-                        suggestionPanel.classList.add('visible');
+                    const suggestionContainer = document.querySelector('.suggestion-container');
+                    if (suggestionContainer) {
+                        // 当有内容时隐藏建议容器，无内容时显示建议容器
+                        if (textArea.value.trim() !== '') {
+                            suggestionContainer.style.display = 'none';
+                        } else if (inputWrapper.classList.contains('focused')) {
+                            suggestionContainer.style.display = 'flex';
+                        }
                     }
                 }
             });
@@ -1974,13 +2196,18 @@
                 // 隐藏工具栏
                 hideToolbar();
                 
+                // 如果没有选中元素，确保标签容器完全隐藏
+                if (!selectedElement) {
+                    inputTagContainer.classList.remove('visible');
+                    inputTagContainer.classList.remove('hiding');
+                    inputTagContainer.style.height = '0';
+                    inputTagContainer.style.minHeight = '0';
+                    inputTagContainer.style.padding = '0';
+                    inputWrapper.classList.remove('with-tag');
+                    return;
+                }
+                
                 if (selectedElement) {
-                    // 显示建议面板
-                    suggestionPanel.classList.add('visible');
-                    
-                    // 自动选中第一个建议（通过MutationObserver在initSuggestionItems中处理）
-                    
-                    // 改进标签显示逻辑
                     // 确保有选中元素时，标签内容始终显示
                     if (!inputTagContainer.classList.contains('visible')) {
                         // 先检查标签内容是否存在，不存在则重新生成
@@ -1991,9 +2218,28 @@
                         inputTagContainer.classList.add('visible');
                         inputTagContainer.classList.remove('hiding');
                         
+                        // 确保标签容器高度正确
+                        setTimeout(() => {
+                            inputTagContainer.style.height = 'auto';
+                        }, 0);
+                        
                         // 添加高度类
                         inputWrapper.classList.add('with-tag');
+                        inputWrapper.style.height = 'auto';
                     }
+                    
+                    // 确保全部建议项可见
+                    setTimeout(() => {
+                        const suggestionContainer = document.querySelector('.suggestion-container');
+                        if (suggestionContainer) {
+                            // 只有在输入框为空时才显示建议
+                            if (textArea.value.trim() === '') {
+                                suggestionContainer.style.display = 'flex';
+                            } else {
+                                suggestionContainer.style.display = 'none';
+                            }
+                        }
+                    }, 0);
                 }
             });
             
@@ -2001,12 +2247,23 @@
             textArea.addEventListener('blur', () => {
                 inputWrapper.classList.remove('focused');
                 
-                // 只有在输入框失焦时才隐藏建议面板
-                suggestionPanel.classList.remove('visible');
-                
                 // 如果没有选中元素，确保移除高度类
                 if (!selectedElement) {
                     inputWrapper.classList.remove('with-tag');
+                } else {
+                    // 如果有选中元素，保持标签容器可见但隐藏建议
+                    setTimeout(() => {
+                        const suggestionContainer = document.querySelector('.suggestion-container');
+                        if (suggestionContainer) {
+                            suggestionContainer.style.display = 'none';
+                        }
+                        
+                        // 调整标签容器高度，只显示标签部分
+                        const tagTopContainer = inputTagContainer.querySelector('.tag-top-container');
+                        if (tagTopContainer) {
+                            inputTagContainer.style.height = `${tagTopContainer.offsetHeight}px`;
+                        }
+                    }, 0);
                 }
                 
                 // 如果有选中的元素，自动重新显示工具栏
@@ -2024,46 +2281,62 @@
                     return;
                 }
                 
-                // 处理键盘导航
-                if (suggestionPanel.classList.contains('visible')) {
-                    const suggestionItems = document.querySelectorAll('.suggestion-item');
+                // 处理键盘导航 - 修改为处理 suggestion-option 元素
+                if (inputTagContainer.classList.contains('visible') && inputWrapper.classList.contains('focused')) {
+                    const suggestionOptions = document.querySelectorAll('.suggestion-option');
                     let activeIndex = -1;
                     
                     // 找到当前选中项的索引
-                    suggestionItems.forEach((item, index) => {
+                    suggestionOptions.forEach((item, index) => {
                         if (item.classList.contains('active')) {
                             activeIndex = index;
                         }
                     });
                     
+                    // 监控删除键和退格键，当输入框内容为空时显示建议
+                    if ((e.key === 'Backspace' || e.key === 'Delete') && textArea.value.length <= 1) {
+                        setTimeout(() => {
+                            const suggestionContainer = document.querySelector('.suggestion-container');
+                            if (suggestionContainer && textArea.value.trim() === '') {
+                                suggestionContainer.style.display = 'flex';
+                                
+                                // 重置选中状态
+                                if (suggestionOptions.length > 0) {
+                                    updateActiveSuggestion(suggestionOptions, 0);
+                                }
+                            }
+                        }, 0);
+                    }
+                    
                     switch (e.key) {
                         case 'ArrowDown':
                             e.preventDefault(); // 防止光标移动
                             // 向下移动选择
-                            activeIndex = (activeIndex + 1) % suggestionItems.length;
-                            updateActiveSuggestion(suggestionItems, activeIndex);
+                            activeIndex = (activeIndex + 1) % suggestionOptions.length;
+                            updateActiveSuggestion(suggestionOptions, activeIndex);
                             return; // 阻止后续处理
                             
                         case 'ArrowUp':
                             e.preventDefault(); // 防止光标移动
                             // 向上移动选择
-                            activeIndex = (activeIndex - 1 + suggestionItems.length) % suggestionItems.length;
-                            updateActiveSuggestion(suggestionItems, activeIndex);
+                            activeIndex = (activeIndex - 1 + suggestionOptions.length) % suggestionOptions.length;
+                            updateActiveSuggestion(suggestionOptions, activeIndex);
                             return; // 阻止后续处理
                             
                         case 'Tab':
-                            // Tab键选择当前项
-                            if (activeIndex >= 0 && activeIndex < suggestionItems.length) {
+                        case 'Enter':
+                            // Tab键或Enter键选择当前项
+                            if (activeIndex >= 0 && activeIndex < suggestionOptions.length) {
                                 e.preventDefault();
-                                suggestionItems[activeIndex].click();
+                                suggestionOptions[activeIndex].click();
                                 return; // 阻止后续处理
                             }
                             break;
                             
                         case 'Escape':
-                            // Escape键隐藏建议面板
+                            // Escape键隐藏建议
                             e.preventDefault();
-                            suggestionPanel.classList.remove('visible');
+                            inputWrapper.classList.remove('focused');
                             return; // 阻止后续处理
                     }
                 }
@@ -2071,24 +2344,6 @@
                 // 处理回车键发送消息
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault(); // 阻止默认的换行行为
-                    
-                    // 如果建议面板可见且有选中项，则选择该项
-                    if (suggestionPanel.classList.contains('visible')) {
-                        const suggestionItems = document.querySelectorAll('.suggestion-item');
-                        let activeIndex = -1;
-                        
-                        // 找到当前选中项的索引
-                        suggestionItems.forEach((item, index) => {
-                            if (item.classList.contains('active')) {
-                                activeIndex = index;
-                            }
-                        });
-                        
-                        if (activeIndex >= 0 && activeIndex < suggestionItems.length) {
-                            suggestionItems[activeIndex].click();
-                            return; // 阻止后续处理
-                        }
-                    }
                     
                     // 否则发送消息
                     if (textArea.value.trim() !== '') {
@@ -2205,8 +2460,10 @@
             if (activeIndex >= 0 && activeIndex < suggestionItems.length) {
                 suggestionItems[activeIndex].classList.add('active');
                 
-                // 确保活动项在视图中
-                suggestionItems[activeIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                // 确保活动项在视图中 - 对于suggestion-option不需要滚动，因为已经全部显示
+                if (!suggestionItems[activeIndex].classList.contains('suggestion-option')) {
+                    suggestionItems[activeIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
             }
         }
 
@@ -2347,6 +2604,28 @@
             </svg>`;
             toolbar.appendChild(arrow);
         }
+
+        // 在页面加载完成后初始化所有功能
+        document.addEventListener('DOMContentLoaded', () => {
+            initSelectableElements();
+            initToolbarDrag();
+            initInputFocus();
+            initSuggestionItems();
+            initGlobalKeyboardListener(); // 添加全局键盘监听初始化
+            
+            // 初始化工具栏标题和分隔线引用
+            window.toolbarTitle = document.getElementById('toolbarDragHandle');
+            window.toolbarDivider = toolbar.querySelector('.toolbar-divider');
+            
+            // 确保inputTagContainer完全隐藏且不占空间
+            inputTagContainer.classList.remove('visible');
+            inputTagContainer.classList.remove('hiding');
+            inputTagContainer.innerHTML = '';
+            inputTagContainer.style.height = '0';
+            inputTagContainer.style.minHeight = '0';
+            inputTagContainer.style.padding = '0';
+            inputWrapper.classList.remove('with-tag');
+        });
     </script>
 </body>
 </html> 
